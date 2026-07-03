@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://j550t2k1qrk1"]
+[gd_scene format=3 uid="uid://j550t2k1qrk1"]
 
 [ext_resource type="Script" uid="uid://ddfedoigeoio6" path="res://Game_ui.gd" id="1_obik5"]
 [ext_resource type="Texture2D" uid="uid://dom6xnki7l4b" path="res://Sprout Lands - UI Pack - Basic pack/emojis-free/emoji style ui/Inventory_Spritesheet.png" id="2_xlnb1"]
@@ -21,6 +21,10 @@ font_color = Color(0, 0, 0, 1)
 [sub_resource type="AtlasTexture" id="AtlasTexture_vay52"]
 atlas = ExtResource("3_vealc")
 region = Rect2(63.79985, 512.5722, 32.317955, 32.078552)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_axe"]
+atlas = ExtResource("3_vealc")
+region = Rect2(0, 510.82755, 33.83146, 33.633636)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pmdkx"]
 atlas = ExtResource("4_ltg2s")
@@ -46,31 +50,31 @@ region = Rect2(80.37377, 15.428144, 15.626228, 16.571856)
 atlas = ExtResource("5_d6n2q")
 region = Rect2(96.376816, 94.62877, 47.505035, 49.822342)
 
-[node name="GameUI" type="CanvasLayer"]
+[node name="GameUI" type="CanvasLayer" unique_id=571096897]
 script = ExtResource("1_obik5")
 
-[node name="HotbarContainer" type="Control" parent="."]
+[node name="HotbarContainer" type="Control" parent="." unique_id=718277041]
 layout_mode = 3
-anchors_preset = 12
+anchors_preset = 2
 anchor_top = 1.0
-anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -14.429993
-offset_bottom = -14.429993
-grow_horizontal = 2
+offset_left = 2.0
+offset_top = -30.0
+offset_right = 2.0
+offset_bottom = -30.0
 grow_vertical = 0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HotbarContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="HotbarContainer" unique_id=2091582902]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 alignment = 1
 
-[node name="Slot1" type="TextureRect" parent="HotbarContainer/HBoxContainer"]
+[node name="Slot1" type="TextureRect" parent="HotbarContainer/HBoxContainer" unique_id=659490726]
 layout_mode = 2
 texture = SubResource("AtlasTexture_5wnrh")
 
-[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot1"]
+[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot1" unique_id=1787451435]
 z_index = 2
 layout_mode = 0
 offset_left = 5.0
@@ -79,7 +83,7 @@ offset_right = 38.0
 offset_bottom = 41.429993
 texture = SubResource("AtlasTexture_uisgv")
 
-[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot1"]
+[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot1" unique_id=1521300726]
 z_index = 2
 layout_mode = 0
 offset_left = 75.0
@@ -90,11 +94,11 @@ label_settings = SubResource("LabelSettings_xlnb1")
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="Slot2" type="TextureRect" parent="HotbarContainer/HBoxContainer"]
+[node name="Slot2" type="TextureRect" parent="HotbarContainer/HBoxContainer" unique_id=1211617100]
 layout_mode = 2
 texture = SubResource("AtlasTexture_5wnrh")
 
-[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot2"]
+[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot2" unique_id=628974916]
 z_index = 2
 layout_mode = 0
 offset_left = -29.0
@@ -105,7 +109,7 @@ label_settings = SubResource("LabelSettings_xlnb1")
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot2"]
+[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot2" unique_id=882432731]
 z_index = 2
 layout_mode = 0
 offset_left = 7.0
@@ -114,11 +118,35 @@ offset_right = 39.0
 offset_bottom = 40.429993
 texture = SubResource("AtlasTexture_vay52")
 
-[node name="Slot3" type="TextureRect" parent="HotbarContainer/HBoxContainer"]
+[node name="SlotAxe" type="TextureRect" parent="HotbarContainer/HBoxContainer" unique_id=1398659994]
 layout_mode = 2
 texture = SubResource("AtlasTexture_5wnrh")
 
-[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot3"]
+[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/SlotAxe" unique_id=1075567602]
+z_index = 2
+layout_mode = 0
+offset_left = 7.0
+offset_top = 8.429993
+offset_right = 40.0
+offset_bottom = 41.429993
+texture = SubResource("AtlasTexture_axe")
+
+[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/SlotAxe" unique_id=819854594]
+z_index = 2
+layout_mode = 0
+offset_left = 24.0
+offset_top = 33.429993
+offset_right = 43.0
+offset_bottom = 45.429993
+label_settings = SubResource("LabelSettings_xlnb1")
+horizontal_alignment = 2
+vertical_alignment = 2
+
+[node name="Slot3" type="TextureRect" parent="HotbarContainer/HBoxContainer" unique_id=580199165]
+layout_mode = 2
+texture = SubResource("AtlasTexture_5wnrh")
+
+[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot3" unique_id=402669968]
 z_index = 2
 layout_mode = 0
 offset_left = 6.0
@@ -127,7 +155,7 @@ offset_right = 40.0
 offset_bottom = 39.429993
 texture = SubResource("AtlasTexture_pmdkx")
 
-[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot3"]
+[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot3" unique_id=542348147]
 z_index = 2
 layout_mode = 0
 offset_left = 16.0
@@ -139,11 +167,11 @@ label_settings = SubResource("LabelSettings_obik5")
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="Slot4" type="TextureRect" parent="HotbarContainer/HBoxContainer"]
+[node name="Slot4" type="TextureRect" parent="HotbarContainer/HBoxContainer" unique_id=659009659]
 layout_mode = 2
 texture = SubResource("AtlasTexture_5wnrh")
 
-[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot4"]
+[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot4" unique_id=613278467]
 z_index = 2
 layout_mode = 0
 offset_left = 5.0
@@ -152,7 +180,7 @@ offset_right = 40.0
 offset_bottom = 41.429993
 texture = SubResource("AtlasTexture_ci3e8")
 
-[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot4"]
+[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot4" unique_id=231002685]
 z_index = 2
 layout_mode = 0
 offset_left = 24.0
@@ -164,11 +192,11 @@ label_settings = SubResource("LabelSettings_xlnb1")
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="Slot5" type="TextureRect" parent="HotbarContainer/HBoxContainer"]
+[node name="Slot5" type="TextureRect" parent="HotbarContainer/HBoxContainer" unique_id=1560301298]
 layout_mode = 2
 texture = SubResource("AtlasTexture_5wnrh")
 
-[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot5"]
+[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot5" unique_id=2023849569]
 layout_mode = 0
 offset_left = 9.0
 offset_top = 7.4299927
@@ -176,7 +204,7 @@ offset_right = 40.0
 offset_bottom = 38.429993
 texture = SubResource("AtlasTexture_obik5")
 
-[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot5"]
+[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot5" unique_id=1658130812]
 z_index = 2
 layout_mode = 0
 offset_left = 33.0
@@ -187,11 +215,11 @@ label_settings = SubResource("LabelSettings_xlnb1")
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="Slot6" type="TextureRect" parent="HotbarContainer/HBoxContainer"]
+[node name="Slot6" type="TextureRect" parent="HotbarContainer/HBoxContainer" unique_id=1285804139]
 layout_mode = 2
 texture = SubResource("AtlasTexture_5wnrh")
 
-[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot6"]
+[node name="Icon" type="TextureRect" parent="HotbarContainer/HBoxContainer/Slot6" unique_id=1273328035]
 layout_mode = 0
 offset_left = 8.0
 offset_top = 8.429993
@@ -199,7 +227,7 @@ offset_right = 39.0
 offset_bottom = 39.429993
 texture = SubResource("AtlasTexture_xlnb1")
 
-[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot6"]
+[node name="Label" type="Label" parent="HotbarContainer/HBoxContainer/Slot6" unique_id=352691781]
 z_index = 2
 layout_mode = 0
 offset_left = 24.0
@@ -210,7 +238,7 @@ label_settings = SubResource("LabelSettings_xlnb1")
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="Selector" type="TextureRect" parent="HotbarContainer"]
+[node name="Selector" type="TextureRect" parent="HotbarContainer" unique_id=742756755]
 z_index = 1
 layout_mode = 0
 offset_top = -0.5700073
