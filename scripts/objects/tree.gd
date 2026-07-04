@@ -2,6 +2,7 @@ extends StaticBody2D
 
 @onready var flash_sprite_2d: Sprite2D = $FlashSprite2D
 const apple_texture = preload("res://graphics/plants/apple.png")
+const dropped_apple_scene = preload("res://scenes/objects/dropped_apple.tscn")
 var tree_health := Data.APPLE_TREE_HEALTH
 var apple_range = [2, 4]
 
@@ -14,8 +15,8 @@ func _ready() -> void:
 
 func hit(tool: Enum.Tool, _attacker_position: Vector2):
 	if tool == Enum.Tool.AXE:
-		flash_sprite_2d.flash()
-		get_apple()
+		shake()
+		drop_apple()
 		tree_health -= 1
 		if tree_health == 0:
 			Data.ITEMS_AMOUNT[Enum.Item.WOOD] += 1
@@ -25,10 +26,33 @@ func hit(tool: Enum.Tool, _attacker_position: Vector2):
 			$CollisionShapeStumpD2.disabled = false
 
 
-func get_apple():
-	if $Apples.get_children():
-		$Apples.get_children().pick_random().queue_free()
-		Data.ITEMS_AMOUNT[Enum.Item.APPLE] += 1
+func shake():
+	# Wobble the tree back and forth when it gets chopped
+	var tween = create_tween()
+	flash_sprite_2d.rotation = 0.0
+	tween.tween_property(flash_sprite_2d, "rotation", deg_to_rad(5), 0.05)
+	tween.tween_property(flash_sprite_2d, "rotation", deg_to_rad(-4), 0.05)
+	tween.tween_property(flash_sprite_2d, "rotation", deg_to_rad(2), 0.05)
+	tween.tween_property(flash_sprite_2d, "rotation", 0.0, 0.05)
+
+
+func drop_apple():
+	if $Apples.get_children().is_empty():
+		return
+
+	# Remove one apple from the branch...
+	var apple_sprite: Sprite2D = $Apples.get_children().pick_random()
+	var start_global := apple_sprite.global_position
+	apple_sprite.queue_free()
+
+	# ...and spawn a physical apple that falls to the ground for the
+	# player to pick up.
+	var dropped = dropped_apple_scene.instantiate()
+	get_parent().add_child(dropped)
+	dropped.global_position = start_global
+
+	var land_global := global_position + Vector2(randf_range(-10, 10), 12)
+	dropped.fall_to(land_global)
 
 
 func create_apple():

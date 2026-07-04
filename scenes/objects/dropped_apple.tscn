@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://bntvob3fyx4o1"]
+
+[ext_resource type="Script" path="res://scripts/objects/dropped_apple.gd" id="1_drpap"]
+[ext_resource type="Texture2D" uid="uid://cexoadqpuy6e2" path="res://graphics/plants/apple.png" id="2_drpap"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_drpap"]
+radius = 5.0
+
+[node name="DroppedApple" type="StaticBody2D"]
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("1_drpap")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_drpap")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_drpap")

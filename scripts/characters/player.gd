@@ -36,6 +36,7 @@ signal day_change
 
 var can_interact: bool = false
 var last_interactable
+var interactables: Array = []
 
 signal update_control_ui(key_enum: Enum.KEYBOARD, currentItem: Enum)
 
@@ -137,7 +138,7 @@ func get_basic_input():
 		update_control_ui.emit(Enum.KEYBOARD.CHANGE_TOOL, current_tool)
 
 	if Input.is_action_just_pressed("action"):
-		if can_interact and last_interactable:
+		if can_interact and is_instance_valid(last_interactable):
 			last_interactable.interact(self)
 		else:
 			tool_state_machine.travel(Data.TOOL_STATE_ANIMATIONS[current_tool])
@@ -208,7 +209,7 @@ func get_house_input():
 		$Sprite2D.texture = Data.PLAYER_SKINS[current_style]
 		
 	if Input.is_action_just_pressed("action"):
-		if can_interact and last_interactable:
+		if can_interact and is_instance_valid(last_interactable):
 			last_interactable.interact(self)
 	
 	
@@ -271,16 +272,28 @@ func _on_fishing_game_fish_game_finish(is_success: bool) -> void:
 func _on_interact_range_area_2d_body_entered(body: Node2D) -> void:
 	if body.has_method("interact"):
 		body.can_interact = true
-		can_interact = true
+		if body not in interactables:
+			interactables.append(body)
 		last_interactable = body
+		can_interact = true
 
 
 
 func _on_interact_range_area_2d_body_exited(body: Node2D) -> void:
-	can_interact = false
-	last_interactable = null
 	if body.has_method("interact"):
 		body.can_interact = false
+		interactables.erase(body)
+
+	# Fall back to another interactable still in range, if any
+	while not interactables.is_empty() and not is_instance_valid(interactables.back()):
+		interactables.pop_back()
+
+	if interactables.is_empty():
+		can_interact = false
+		last_interactable = null
+	else:
+		last_interactable = interactables.back()
+		can_interact = true
 
 	
 	
