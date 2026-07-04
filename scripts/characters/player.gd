@@ -6,6 +6,7 @@ var debug: bool = true
 const SPEED: float = Data.PLAYER_SPEED
 var direction: Vector2
 var can_move: bool = true
+var dialogue_lock_owner: Node = null
 @onready var move_state_machine = $Animation/AnimationTree.get("parameters/StateMachine/playback")
 
 @onready var tool_state_machine = $Animation/AnimationTree.get("parameters/ToolStateMachine/playback")
@@ -89,11 +90,18 @@ func _physics_process(_delta: float) -> void:
 			update_control_ui.emit(Enum.KEYBOARD.CHANGE_MODE, current_state)		
 			
 		update_state = current_state
+
+	if is_dialogue_locked():
+		get_dialogue_locked_input()
+		return
 		
 	match current_state:
 		Enum.State.DEFAULT:
 			if can_move:
 				get_basic_input()
+				if is_dialogue_locked():
+					stop_for_dialogue_lock()
+					return
 				move()
 				animate()
 		
@@ -108,6 +116,9 @@ func _physics_process(_delta: float) -> void:
 			
 		Enum.State.HOUSE:
 			get_house_input()
+			if is_dialogue_locked():
+				stop_for_dialogue_lock()
+				return
 			move()
 			animate()
 			
@@ -119,6 +130,52 @@ func move():
 	direction = Input.get_vector("left", "right", "up", "down")
 	velocity = direction * SPEED
 	move_and_slide()
+
+
+func begin_dialogue_lock(owner: Node) -> void:
+	if not is_instance_valid(owner):
+		return
+
+	dialogue_lock_owner = owner
+	set_dialogue_idle()
+
+
+func end_dialogue_lock(owner: Node) -> void:
+	if owner != dialogue_lock_owner:
+		return
+
+	dialogue_lock_owner = null
+	set_dialogue_idle()
+
+
+func is_dialogue_locked() -> bool:
+	if dialogue_lock_owner == null:
+		return false
+
+	if not is_instance_valid(dialogue_lock_owner):
+		dialogue_lock_owner = null
+		return false
+
+	return true
+
+
+func get_dialogue_locked_input() -> void:
+	stop_for_dialogue_lock()
+
+	if Input.is_action_just_pressed("action") and is_dialogue_locked():
+		if dialogue_lock_owner.has_method("interact"):
+			dialogue_lock_owner.interact(self)
+
+
+func stop_for_dialogue_lock() -> void:
+	set_dialogue_idle()
+	move_and_slide()
+
+
+func set_dialogue_idle() -> void:
+	direction = Vector2.ZERO
+	velocity = Vector2.ZERO
+	move_state_machine.travel("idle")
 	
 	
 func get_basic_input():
@@ -144,6 +201,9 @@ func get_basic_input():
 			tool_state_machine.travel(Data.TOOL_STATE_ANIMATIONS[current_tool])
 			do_action.emit($Animation/AnimationTree, "parameters/OneShot/request", current_tool, position, animation_direction)
 			#$Animation/AnimationTree.set("parameters/OneShot/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+
+	if is_dialogue_locked():
+		return
 		
 	if Input.is_action_just_pressed("highlighter"):
 		Data.TARGET_HIGHLIGHTER = not Data.TARGET_HIGHLIGHTER 

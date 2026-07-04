@@ -4,8 +4,24 @@
 [ext_resource type="Texture2D" uid="uid://2qlyprt01u26" path="res://graphics/npcs/1-Bunny/Bunny_base.png" id="2_bunny"]
 [ext_resource type="Texture2D" uid="uid://dok28m18mjwwd" path="res://graphics/npcs/1-Bunny/Bunny_idle_hand.png" id="3_idle_hand"]
 [ext_resource type="Texture2D" uid="uid://cc5psfkgva2s1" path="res://graphics/npcs/1-Bunny/Bunny_walk_hand.png" id="4_walk_hand"]
-[ext_resource type="PackedScene" uid="uid://dsbyrwcvju07b" path="res://scenes/ui/dialog.tscn" id="5_dialog"]
+[ext_resource type="PackedScene" path="res://scenes/ui/character_dialog.tscn" id="5_character_dialog"]
 [ext_resource type="Texture2D" uid="uid://ctq86sgkfof6j" path="res://graphics/Ninja Adventure - Asset Pack/Ninja Adventure - Asset Pack/Ui/Emote/emote21.png" id="6_interact_icon"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_portrait_neutral"]
+atlas = ExtResource("2_bunny")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_portrait_happy"]
+atlas = ExtResource("2_bunny")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_portrait_worried"]
+atlas = ExtResource("2_bunny")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_portrait_surprised"]
+atlas = ExtResource("2_bunny")
+region = Rect2(192, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_down_0"]
 atlas = ExtResource("2_bunny")
@@ -660,6 +676,10 @@ size = Vector2(16, 18)
 collision_layer = 44
 collision_mask = 0
 script = ExtResource("1_mira")
+portrait_neutral = SubResource("AtlasTexture_portrait_neutral")
+portrait_happy = SubResource("AtlasTexture_portrait_happy")
+portrait_worried = SubResource("AtlasTexture_portrait_worried")
+portrait_surprised = SubResource("AtlasTexture_portrait_surprised")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=954241692]
 sprite_frames = SubResource("SpriteFrames_mira")
@@ -675,10 +695,7 @@ animation = &"idle_down"
 position = Vector2(0, 7)
 shape = SubResource("RectangleShape2D_mira")
 
-[node name="Dialog" parent="." unique_id=1584636092 instance=ExtResource("5_dialog")]
-visible = false
-offset_top = -42.0
-offset_bottom = -42.0
+[node name="CharacterDialog" parent="." unique_id=1584636092 instance=ExtResource("5_character_dialog")]
 
 [node name="InteractSign" type="Sprite2D" parent="." unique_id=952282820]
 visible = false
