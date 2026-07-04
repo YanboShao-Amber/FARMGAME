@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://bfjaiku70hbc8" path="res://scenes/levels/house.tscn" id="12_8iyoh"]
 [ext_resource type="PackedScene" uid="uid://bu6p00q23wr75" path="res://scenes/characters/cat.tscn" id="12_mq31s"]
 [ext_resource type="Texture2D" uid="uid://da1u0rhfjt8a3" path="res://graphics/weather/drops.png" id="13_qogh7"]
+[ext_resource type="PackedScene" path="res://scenes/characters/mira_npc.tscn" id="14_lp2ca"]
 [ext_resource type="PackedScene" uid="uid://bipt8ibmsue4m" path="res://scenes/characters/mouse.tscn" id="15_jyre1"]
 [ext_resource type="Texture2D" uid="uid://capn581vt8q7g" path="res://graphics/icons/sprinkler.png" id="15_mq31s"]
 [ext_resource type="PackedScene" uid="uid://dg6oaylgfaiwo" path="res://scenes/ui/inventory.tscn" id="16_jyre1"]
@@ -2698,6 +2699,10 @@ position = Vector2(132, -179)
 [node name="Mouse" parent="Objects/Shopkeepers" unique_id=692057752 instance=ExtResource("15_jyre1")]
 y_sort_enabled = true
 position = Vector2(325, -102)
+
+[node name="MiraNPC" parent="Objects" unique_id=1197366226 instance=ExtResource("14_lp2ca")]
+position = Vector2(-928, 170)
+scale = Vector2(1, 0.8)
 
 [node name="Overlay" type="Node2D" parent="." unique_id=1816635256]
 
