@@ -28,6 +28,10 @@ buses/default_bus_layout="uid://ci8u0m7y1ts8a"
 Enum="*res://scripts/global/enums.gd"
 Data="*res://scripts/global/data.gd"
 Music="*uid://dnrxtjaqw1usl"
+QuestManager="*res://scripts/systems/quest_manager.gd"
+RelationshipManager="*res://scripts/systems/relationship_manager.gd"
+GiftManager="*res://scripts/systems/gift_manager.gd"
+GreenhouseManager="*res://scripts/systems/greenhouse_manager.gd"
 
 [display]
 

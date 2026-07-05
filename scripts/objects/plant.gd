@@ -35,8 +35,26 @@ func grow(watered: bool):
 
 func _on_collision_area_body_entered(_body: Node2D) -> void:
 	if res.get_complete():
-		Data.ITEMS_AMOUNT[Data.SEED_TO_ITEM[res.curr_seed_enum]] += 2
+		var harvested_item: Enum.Item = Data.SEED_TO_ITEM[res.curr_seed_enum]
+		var harvested_amount: int = 2
+		var previous_amount: int = Data.ITEMS_AMOUNT[harvested_item]
+		Data.ITEMS_AMOUNT[harvested_item] += harvested_amount
+		var actual_harvested_amount: int = Data.ITEMS_AMOUNT[harvested_item] - previous_amount
+		if actual_harvested_amount > 0:
+			QuestManager.report_event(
+				QuestObjectiveData.ObjectiveType.HARVEST_CROP,
+				_get_harvested_crop_id(),
+				actual_harvested_amount
+			)
 		print(res.plant_name + " collected")
 		plant_harvest.emit(coord)
 		plant_info.queue_free()
 		self.queue_free()
+
+
+func _get_harvested_crop_id() -> StringName:
+	var seed_names: Array = Enum.Seed.keys()
+	var seed_index: int = int(res.curr_seed_enum)
+	if seed_index < 0 or seed_index >= seed_names.size():
+		return &""
+	return StringName(seed_names[seed_index])

@@ -1,27 +1,12 @@
 [gd_scene format=3 uid="uid://bcntr6mcde1w"]
 
-[ext_resource type="Script" uid="uid://casnuxw4fg2ac" path="res://scripts/characters/mira_npc.gd" id="1_mira"]
+[ext_resource type="Script" uid="uid://7k84y63hu3bi" path="res://scripts/characters/mira_npc.gd" id="1_mira"]
 [ext_resource type="Texture2D" uid="uid://2qlyprt01u26" path="res://graphics/npcs/1-Bunny/Bunny_base.png" id="2_bunny"]
 [ext_resource type="Texture2D" uid="uid://dok28m18mjwwd" path="res://graphics/npcs/1-Bunny/Bunny_idle_hand.png" id="3_idle_hand"]
 [ext_resource type="Texture2D" uid="uid://cc5psfkgva2s1" path="res://graphics/npcs/1-Bunny/Bunny_walk_hand.png" id="4_walk_hand"]
-[ext_resource type="PackedScene" path="res://scenes/ui/character_dialog.tscn" id="5_character_dialog"]
-[ext_resource type="Texture2D" uid="uid://ctq86sgkfof6j" path="res://graphics/Ninja Adventure - Asset Pack/Ninja Adventure - Asset Pack/Ui/Emote/emote21.png" id="6_interact_icon"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_portrait_neutral"]
-atlas = ExtResource("2_bunny")
-region = Rect2(0, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_portrait_happy"]
-atlas = ExtResource("2_bunny")
-region = Rect2(64, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_portrait_worried"]
-atlas = ExtResource("2_bunny")
-region = Rect2(128, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_portrait_surprised"]
-atlas = ExtResource("2_bunny")
-region = Rect2(192, 0, 64, 64)
+[ext_resource type="PackedScene" uid="uid://haegb60qacqx" path="res://scenes/ui/character_dialog.tscn" id="5_character_dialog"]
+[ext_resource type="Resource" uid="uid://bfsxafojma2ai" path="res://data/npcs/mira_npc_data.tres" id="7_npc_data"]
+[ext_resource type="PackedScene" path="res://scenes/ui/npc_status_indicator.tscn" id="8_status_indicator"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_down_0"]
 atlas = ExtResource("2_bunny")
@@ -670,36 +655,30 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mira"]
-size = Vector2(16, 18)
+size = Vector2(10, 8)
 
 [node name="MiraNPC" type="CharacterBody2D" unique_id=1355288688]
 collision_layer = 44
 collision_mask = 0
 script = ExtResource("1_mira")
-portrait_neutral = SubResource("AtlasTexture_portrait_neutral")
-portrait_happy = SubResource("AtlasTexture_portrait_happy")
-portrait_worried = SubResource("AtlasTexture_portrait_worried")
-portrait_surprised = SubResource("AtlasTexture_portrait_surprised")
+npc_data = ExtResource("7_npc_data")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=954241692]
+scale = Vector2(0.7, 0.65)
 sprite_frames = SubResource("SpriteFrames_mira")
 animation = &"idle_down"
 autoplay = "idle_down"
 
 [node name="HandOverlay" type="AnimatedSprite2D" parent="." unique_id=1875604927]
 z_index = 1
+scale = Vector2(0.7, 0.65)
 sprite_frames = SubResource("SpriteFrames_mira_hands")
 animation = &"idle_down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=66734934]
-position = Vector2(0, 7)
+position = Vector2(0, 6)
 shape = SubResource("RectangleShape2D_mira")
 
 [node name="CharacterDialog" parent="." unique_id=1584636092 instance=ExtResource("5_character_dialog")]
 
-[node name="InteractSign" type="Sprite2D" parent="." unique_id=952282820]
-visible = false
-z_index = 50
-position = Vector2(0, -18)
-scale = Vector2(0.6, 0.6)
-texture = ExtResource("6_interact_icon")
+[node name="NPCStatusIndicator" parent="." instance=ExtResource("8_status_indicator")]

@@ -1,0 +1,198 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/relationship_hud.gd" id="1_relationship_hud"]
+[ext_resource type="Texture2D" path="res://graphics/ui/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Dialouge UI/dialog box medium.png" id="2_panel"]
+[ext_resource type="Texture2D" path="res://graphics/ui/Sprout Lands - UI Pack - Basic pack/emojis-free/emoji style ui/Inventory_Herat_Spritesheet.png" id="3_hearts"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_heart"]
+atlas = ExtResource("3_hearts")
+region = Rect2(0, 0, 16, 16)
+
+[node name="RelationshipHUD" type="CanvasLayer"]
+layer = 6
+script = ExtResource("1_relationship_hud")
+heart_texture = SubResource("AtlasTexture_heart")
+
+[node name="Root" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SafeMargin" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -236.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 128.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="RelationshipPanel" type="NinePatchRect" parent="Root/SafeMargin"]
+texture_filter = 1
+custom_minimum_size = Vector2(220, 112)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("2_panel")
+patch_margin_left = 16
+patch_margin_top = 8
+patch_margin_right = 8
+patch_margin_bottom = 8
+
+[node name="PanelMargin" type="MarginContainer" parent="Root/SafeMargin/RelationshipPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ContentColumn" type="VBoxContainer" parent="Root/SafeMargin/RelationshipPanel/PanelMargin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="HeaderRow" type="HBoxContainer" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="RelationshipIcon" type="TextureRect" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn/HeaderRow"]
+texture_filter = 1
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("AtlasTexture_heart")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NPCNameLabel" type="Label" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.23, 0.13, 0.08, 1)
+theme_override_font_sizes/font_size = 18
+text = ""
+clip_text = true
+text_overrun_behavior = 3
+vertical_alignment = 1
+
+[node name="HeartRow" type="HBoxContainer" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Heart1" type="TextureRect" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn/HeartRow"]
+texture_filter = 1
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("AtlasTexture_heart")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Heart2" type="TextureRect" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn/HeartRow"]
+texture_filter = 1
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("AtlasTexture_heart")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Heart3" type="TextureRect" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn/HeartRow"]
+texture_filter = 1
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("AtlasTexture_heart")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Heart4" type="TextureRect" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn/HeartRow"]
+texture_filter = 1
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("AtlasTexture_heart")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Heart5" type="TextureRect" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn/HeartRow"]
+texture_filter = 1
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+mouse_filter = 2
+texture = SubResource("AtlasTexture_heart")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ProgressRow" type="HBoxContainer" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="HeartLevelLabel" type="Label" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn/ProgressRow"]
+custom_minimum_size = Vector2(76, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.35, 0.21, 0.09, 1)
+theme_override_font_sizes/font_size = 15
+text = ""
+vertical_alignment = 1
+
+[node name="PointsLabel" type="Label" parent="Root/SafeMargin/RelationshipPanel/PanelMargin/ContentColumn/ProgressRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.23, 0.13, 0.08, 1)
+theme_override_font_sizes/font_size = 16
+text = ""
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="FeedbackLayer" type="Control" parent="Root/SafeMargin/RelationshipPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="FeedbackLabel" type="Label" parent="Root/SafeMargin/RelationshipPanel/FeedbackLayer"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -96.0
+offset_top = -36.0
+offset_right = -18.0
+offset_bottom = -14.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.35, 0.18, 0.11, 1)
+theme_override_font_sizes/font_size = 17
+text = ""
+horizontal_alignment = 2
+vertical_alignment = 1

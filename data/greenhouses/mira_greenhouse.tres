@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="GreenhouseProfileData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/greenhouse_profile_data.gd" id="1_greenhouse_profile"]
+
+[resource]
+script = ExtResource("1_greenhouse_profile")
+greenhouse_id = &"mira_greenhouse"
+steward_npc_id = &"mira"
+display_name_cn = "旧温室"
+display_name_en = "Old Greenhouse"
+initial_state = 0
+abandoned_name_cn = "废弃"
+abandoned_name_en = "Abandoned"
+abandoned_description_cn = "玻璃与排水设施已经损坏，温室暂时无法使用。"
+abandoned_description_en = "The glass and drainage systems are damaged, leaving the greenhouse unusable."
+repairing_name_cn = "修复中"
+repairing_name_en = "Repairing"
+repairing_description_cn = "排水问题正在处理，温室的内部结构仍需要继续修复。"
+repairing_description_en = "The drainage problem is being addressed, but the greenhouse structure still needs work."
+restored_name_cn = "已恢复"
+restored_name_en = "Restored"
+restored_description_cn = "温室的结构与灌溉设施已经恢复，可以重新培育植物。"
+restored_description_en = "The greenhouse structure and irrigation systems have been restored, allowing plants to be cultivated again."

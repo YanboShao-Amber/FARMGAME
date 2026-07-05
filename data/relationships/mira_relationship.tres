@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RelationshipProfileData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/relationship_profile_data.gd" id="1_relationship_profile"]
+
+[resource]
+script = ExtResource("1_relationship_profile")
+npc_id = &"mira"
+max_hearts = 5
+points_per_heart = 100
+starting_points = 0

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://dbjdc3drpr66b"]
+
+[ext_resource type="Script" uid="uid://cv5uwjba4c14q" path="res://scripts/ui/npc_status_indicator.gd" id="1_status_indicator"]
+[ext_resource type="Texture2D" uid="uid://mikxat8c1kmk" path="res://graphics/Ninja Adventure - Asset Pack/Ninja Adventure - Asset Pack/Ui/Emote/emote23.png" id="2_available_icon"]
+[ext_resource type="Texture2D" uid="uid://ctq86sgkfof6j" path="res://graphics/Ninja Adventure - Asset Pack/Ninja Adventure - Asset Pack/Ui/Emote/emote21.png" id="3_active_icon"]
+
+[node name="NPCStatusIndicator" type="Node2D" unique_id=1457066526]
+z_index = 80
+script = ExtResource("1_status_indicator")
+available_quest_icon = ExtResource("2_available_icon")
+active_quest_icon = ExtResource("3_active_icon")
+
+[node name="QuestMarker" type="Sprite2D" parent="." unique_id=17712093]
+texture_filter = 1
+position = Vector2(0, -17)
+texture = ExtResource("2_available_icon")

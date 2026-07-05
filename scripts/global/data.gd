@@ -1,5 +1,7 @@
 extends Node
 
+signal game_day_changed(day_id: int)
+
 const PLAYER_SKINS = {
 	Enum.Style.BASIC: preload("res://graphics/characters/main/main_basic.png"),
 	Enum.Style.BASEBALL: preload("res://graphics/characters/main/main_blue.png"),
@@ -181,6 +183,7 @@ const MACHINE_TEXTURES = {
 }
 	
 var TARGET_HIGHLIGHTER: bool = false
+var CURRENT_DAY_ID: int = 1
 
 const APPLE_TREE_HEALTH = 4
 const BLOB_ENEMY_HEALTH = 3
@@ -195,7 +198,8 @@ const ICON_PATHS = {
 	Enum.Item.CORN: "res://graphics/icons/corn.png",
 	Enum.Item.WHEAT: "res://graphics/icons/wheat.png",
 	Enum.Item.PUMPKIN: "res://graphics/icons/pumpkin.png",
-	Enum.Item.TOMATO: "res://graphics/icons/tomato.png"}
+	Enum.Item.TOMATO: "res://graphics/icons/tomato.png",
+	Enum.Item.COIN: "res://graphics/ui/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/special icons/Special Icons.png"}
 
 var FORECAST_RAIN: bool
 
@@ -218,6 +222,8 @@ const TEXTURES = {
 	Enum.Item.PUMPKIN: preload("res://graphics/icons/pumpkin.png"),
 	Enum.Item.WHEAT: preload("res://graphics/icons/wheat.png")}
 
+const COIN_ICON_SHEET: Texture2D = preload("res://graphics/ui/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/special icons/Special Icons.png")
+
 
 var ITEMS_AMOUNT = {
 	Enum.Item.WOOD: 50,
@@ -226,7 +232,115 @@ var ITEMS_AMOUNT = {
 	Enum.Item.CORN: 50,
 	Enum.Item.WHEAT: 50,
 	Enum.Item.PUMPKIN: 50,
-	Enum.Item.TOMATO: 50}
+	Enum.Item.TOMATO: 50,
+	Enum.Item.COIN: 250}
+
+const ITEM_IDS = {
+	Enum.Item.WOOD: &"WOOD",
+	Enum.Item.APPLE: &"APPLE",
+	Enum.Item.TOMATO: &"TOMATO",
+	Enum.Item.CORN: &"CORN",
+	Enum.Item.WHEAT: &"WHEAT",
+	Enum.Item.PUMPKIN: &"PUMPKIN",
+	Enum.Item.FISH: &"FISH",
+	Enum.Item.COIN: &"COIN"}
+
+const ITEM_ID_TO_ENUM = {
+	&"WOOD": Enum.Item.WOOD,
+	&"APPLE": Enum.Item.APPLE,
+	&"TOMATO": Enum.Item.TOMATO,
+	&"CORN": Enum.Item.CORN,
+	&"WHEAT": Enum.Item.WHEAT,
+	&"PUMPKIN": Enum.Item.PUMPKIN,
+	&"FISH": Enum.Item.FISH,
+	&"COIN": Enum.Item.COIN}
+
+const ITEM_DISPLAY_NAMES = {
+	&"WOOD": "Wood",
+	&"APPLE": "Apple",
+	&"TOMATO": "Tomato",
+	&"CORN": "Corn",
+	&"WHEAT": "Wheat",
+	&"PUMPKIN": "Pumpkin",
+	&"FISH": "Fish",
+	&"COIN": "Coin"}
+
+
+func add_coins(amount: int) -> bool:
+	if amount <= 0:
+		return false
+	if not ITEMS_AMOUNT.has(Enum.Item.COIN):
+		ITEMS_AMOUNT[Enum.Item.COIN] = 0
+	ITEMS_AMOUNT[Enum.Item.COIN] += amount
+	return true
+
+
+func get_coins() -> int:
+	if not ITEMS_AMOUNT.has(Enum.Item.COIN):
+		return 0
+	return int(ITEMS_AMOUNT[Enum.Item.COIN])
+
+
+func get_item_texture(item: Enum.Item) -> Texture2D:
+	if item == Enum.Item.COIN:
+		var coin_texture := AtlasTexture.new()
+		coin_texture.atlas = COIN_ICON_SHEET
+		coin_texture.region = Rect2(96, 0, 16, 16)
+		return coin_texture
+
+	return TEXTURES[item]
+
+
+func get_current_game_day_id() -> int:
+	return CURRENT_DAY_ID
+
+
+func advance_game_day() -> int:
+	CURRENT_DAY_ID += 1
+	game_day_changed.emit(CURRENT_DAY_ID)
+	return CURRENT_DAY_ID
+
+
+func get_item_id(item: Enum.Item) -> StringName:
+	if ITEM_IDS.has(item):
+		return ITEM_IDS[item]
+	return &""
+
+
+func get_item_enum_from_id(item_id: StringName) -> int:
+	if ITEM_ID_TO_ENUM.has(item_id):
+		return int(ITEM_ID_TO_ENUM[item_id])
+	return -1
+
+
+func has_item_id(item_id: StringName) -> bool:
+	var item_enum: int = get_item_enum_from_id(item_id)
+	return item_enum != -1 and ITEMS_AMOUNT.has(item_enum)
+
+
+func get_item_display_name(item_id: StringName) -> String:
+	if ITEM_DISPLAY_NAMES.has(item_id):
+		return ITEM_DISPLAY_NAMES[item_id]
+	return String(item_id)
+
+
+func get_item_amount_by_id(item_id: StringName) -> int:
+	var item_enum: int = get_item_enum_from_id(item_id)
+	if item_enum == -1 or not ITEMS_AMOUNT.has(item_enum):
+		return 0
+	return int(ITEMS_AMOUNT[item_enum])
+
+
+func remove_item_by_id(item_id: StringName, amount: int = 1) -> bool:
+	if amount <= 0:
+		return false
+	var item_enum: int = get_item_enum_from_id(item_id)
+	if item_enum == -1 or not ITEMS_AMOUNT.has(item_enum):
+		return false
+	if int(ITEMS_AMOUNT[item_enum]) < amount:
+		return false
+	ITEMS_AMOUNT[item_enum] -= amount
+	return true
 
 
 var SEED_TO_ITEM = {

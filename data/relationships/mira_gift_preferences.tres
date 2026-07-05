@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GiftPreferenceData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/gift_preference_data.gd" id="1_gift_preference"]
+
+[resource]
+script = ExtResource("1_gift_preference")
+npc_id = &"mira"
+loved_item_ids = Array[StringName]([&"TOMATO"])
+liked_item_ids = Array[StringName]([&"WHEAT"])
+neutral_item_ids = Array[StringName]([&"CORN"])
+disliked_item_ids = Array[StringName]([&"PUMPKIN"])
+loved_points = 80
+liked_points = 40
+neutral_points = 10
+disliked_points = -20

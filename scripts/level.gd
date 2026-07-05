@@ -71,6 +71,7 @@ func day_restart():
 
 
 func level_reset():
+	Data.advance_game_day()
 	for plant: StaticBody2D in get_tree().get_nodes_in_group("Plants"):
 		plant.grow(plant.coord in $Layers/WetSoilLayer.get_used_cells())
 			

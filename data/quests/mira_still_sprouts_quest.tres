@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="QuestData" format=3 uid="uid://bnjbwdeu2fxcg"]
+
+[ext_resource type="Script" uid="uid://cjuo278l0h7m2" path="res://scripts/data/quest_data.gd" id="1_quest_data"]
+[ext_resource type="Script" uid="uid://yn5t75w3q7kb" path="res://scripts/data/quest_objective_data.gd" id="2_quest_objective"]
+
+[sub_resource type="Resource" id="QuestObjectiveData_harvest_beginner_crop"]
+script = ExtResource("2_quest_objective")
+objective_id = &"harvest_beginner_crop"
+objective_type = 0
+target_id = &"WHEAT"
+required_amount = 3
+description_cn = "收获3份小麦"
+description_en = "Harvest 3 Wheat"
+
+[resource]
+script = ExtResource("1_quest_data")
+quest_id = &"mira_still_sprouts"
+giver_npc_id = &"mira"
+title_cn = "仍会发芽的种子"
+title_en = "Seeds That Still Sprout"
+description_cn = "米萝想确认谷地的土壤是否仍然适合植物生长。收获3份成熟作物，作为她的观察样本。"
+description_en = "Mira wants to confirm whether the valley soil can still support healthy plant growth. Harvest three mature crops for her observations."
+objectives = Array[ExtResource("2_quest_objective")]([SubResource("QuestObjectiveData_harvest_beginner_crop")])
+reward_coins = 100

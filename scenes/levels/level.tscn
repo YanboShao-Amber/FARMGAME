@@ -20,6 +20,11 @@
 [ext_resource type="PackedScene" uid="uid://dg6oaylgfaiwo" path="res://scenes/ui/inventory.tscn" id="16_jyre1"]
 [ext_resource type="PackedScene" uid="uid://tqv0e2o3f1h1" path="res://scenes/ui/shop_ui.tscn" id="16_qhnmj"]
 [ext_resource type="PackedScene" uid="uid://4t651cjey82n" path="res://scenes/ui/keyboard_control_hint_ui.tscn" id="17_jyre1"]
+[ext_resource type="PackedScene" path="res://scenes/ui/quest_tracker.tscn" id="18_quest_tracker"]
+[ext_resource type="PackedScene" path="res://scenes/ui/quest_completion_toast.tscn" id="19_completion_toast"]
+[ext_resource type="PackedScene" path="res://scenes/ui/relationship_hud.tscn" id="20_relationship_hud"]
+[ext_resource type="Resource" uid="uid://bfsxafojma2ai" path="res://data/npcs/mira_npc_data.tres" id="21_mira_npc_data"]
+[ext_resource type="PackedScene" path="res://scenes/environment/mira_greenhouse_world.tscn" id="22_mira_greenhouse"]
 
 [sub_resource type="Gradient" id="Gradient_rmjfq"]
 offsets = PackedFloat32Array(0, 0.21830986, 0.42488262, 1)
@@ -2345,7 +2350,7 @@ tile_set = SubResource("TileSet_mbbpy")
 
 [node name="SoilLayer" type="TileMapLayer" parent="Layers" unique_id=1567437613]
 z_index = -2
-tile_map_data = PackedByteArray("AAACAAMAAAANAAgAAAACAAIAAAANAAgAAAACAAEAAAANAAcAAAABAAMAAAALAAsAAAABAAIAAAAMAAgAAAABAAEAAAAMAAcAAAAAAAMAAAAMAAgAAAAAAAIAAAAMAAgAAAAAAAEAAAAMAAcAAAD//wMAAAAMAAsAAAD//wIAAAAMAAgAAAD//wEAAAAMAAcAAAD+/wMAAAAMAAgAAAD+/wIAAAAMAAgAAAD+/wEAAAAMAAcAAAD9/wMAAAALAAgAAAD9/wIAAAALAAgAAAD9/wEAAAALAAcAAAACAAQAAAANAAkAAAABAAQAAAAMAAkAAAAAAAQAAAAMAAkAAAD//wQAAAAMAAkAAAD+/wQAAAAMAAkAAAD9/wQAAAALAAkAAAA=")
+tile_map_data = PackedByteArray("AAALAAAAAAALAAcAAAAMAAAAAAAMAAcAAAANAAAAAAAMAAcAAAAOAAAAAAAMAAcAAAAPAAAAAAAMAAcAAAAQAAAAAAAMAAcAAAARAAAAAAANAAcAAAARAAEAAAANAAgAAAAQAAEAAAAMAAgAAAAPAAEAAAAMAAgAAAAOAAEAAAAOAAsAAAANAAEAAAAMAAgAAAAMAAEAAAAOAAsAAAALAAEAAAALAAgAAAALAAIAAAALAAgAAAAMAAIAAAAOAAsAAAANAAIAAAALAAsAAAAOAAIAAAAMAAgAAAAPAAIAAAAMAAgAAAAQAAIAAAAMAAgAAAARAAIAAAANAAgAAAARAAMAAAANAAkAAAAQAAMAAAAMAAkAAAAPAAMAAAAMAAkAAAAOAAMAAAAMAAkAAAANAAMAAAAMAAkAAAAMAAMAAAAMAAkAAAALAAMAAAALAAkAAAA=")
 tile_set = SubResource("TileSet_xb4v1")
 
 [node name="WetSoilLayer" type="TileMapLayer" parent="Layers" unique_id=961228117]
@@ -2702,11 +2707,10 @@ position = Vector2(325, -102)
 
 [node name="MiraNPC" parent="Objects" unique_id=1197366226 instance=ExtResource("14_lp2ca")]
 position = Vector2(-928, 170)
-scale = Vector2(1, 0.8)
-portrait_neutral = null
-portrait_happy = null
-portrait_worried = null
-portrait_surprised = null
+scale = Vector2(1.2, 1.2)
+
+[node name="MiraGreenhouse" parent="Objects" instance=ExtResource("22_mira_greenhouse")]
+position = Vector2(-1600, -360)
 
 [node name="Overlay" type="Node2D" parent="." unique_id=1816635256]
 
@@ -2747,6 +2751,14 @@ visible = false
 modulate = Color(1, 1, 1, 0.5921569)
 texture = ExtResource("15_mq31s")
 centered = false
+
+[node name="MiraQuestTracker" parent="." unique_id=969973331 instance=ExtResource("18_quest_tracker")]
+tracked_quest_id = &"mira_still_sprouts"
+
+[node name="QuestCompletionToast" parent="." unique_id=1456341664 instance=ExtResource("19_completion_toast")]
+
+[node name="MiraRelationshipHUD" parent="." unique_id=1030087958 instance=ExtResource("20_relationship_hud")]
+npc_data = ExtResource("21_mira_npc_data")
 
 [node name="Timers" type="Node" parent="." unique_id=1515476947]
 

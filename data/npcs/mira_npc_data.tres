@@ -1,0 +1,321 @@
+[gd_resource type="Resource" script_class="NPCData" format=3 uid="uid://bfsxafojma2ai"]
+
+[ext_resource type="Script" uid="uid://caj0o2sglnb8p" path="res://scripts/data/npc_data.gd" id="1_npc_data"]
+[ext_resource type="Script" uid="uid://cbjc0yqkl8x2j" path="res://scripts/data/dialogue_line_data.gd" id="2_dialogue_line"]
+[ext_resource type="Script" uid="uid://cymrli3svntwa" path="res://scripts/data/dialogue_sequence_data.gd" id="3_dialogue_sequence"]
+[ext_resource type="Texture2D" uid="uid://d2h3mw1ttw4d5" path="res://graphics/npcs/1-Bunny/portraits/mira_neutral.png" id="4_portrait_neutral"]
+[ext_resource type="Texture2D" uid="uid://pwv81xht571j" path="res://graphics/npcs/1-Bunny/portraits/mira_happy.png" id="5_portrait_happy"]
+[ext_resource type="Texture2D" uid="uid://bj42anajfhs0p" path="res://graphics/npcs/1-Bunny/portraits/mira_worried.png" id="6_portrait_worried"]
+[ext_resource type="Texture2D" uid="uid://b6k3h35er3ijm" path="res://graphics/npcs/1-Bunny/portraits/mira_surprised.png" id="7_portrait_surprised"]
+[ext_resource type="Script" uid="uid://cjuo278l0h7m2" path="res://scripts/data/quest_data.gd" id="8_quest_data"]
+[ext_resource type="Resource" uid="uid://bnjbwdeu2fxcg" path="res://data/quests/mira_still_sprouts_quest.tres" id="9_mira_still_sprouts_quest"]
+[ext_resource type="Resource" path="res://data/relationships/mira_relationship.tres" id="10_mira_relationship"]
+[ext_resource type="Resource" path="res://data/relationships/mira_gift_preferences.tres" id="11_mira_gift_preferences"]
+[ext_resource type="Script" uid="uid://dfasul81e1js7" path="res://scripts/data/relationship_dialogue_tier_data.gd" id="12_relationship_tier"]
+[ext_resource type="Resource" path="res://data/greenhouses/mira_greenhouse.tres" id="13_mira_greenhouse"]
+
+[sub_resource type="Resource" id="DialogueLineData_first_1"]
+script = ExtResource("2_dialogue_line")
+text = "请等一下……前面的土还很松。"
+
+[sub_resource type="Resource" id="DialogueLineData_first_2"]
+script = ExtResource("2_dialogue_line")
+text = "这些幼苗刚移栽不久，根系还没有站稳。"
+
+[sub_resource type="Resource" id="DialogueLineData_first_3"]
+script = ExtResource("2_dialogue_line")
+text = "我叫米萝，是这里的植物研究员……至少，以前是。"
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueLineData_first_4"]
+script = ExtResource("2_dialogue_line")
+text = "这座温室已经停用很久了。我现在只照料还能在外面生长的植物。"
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueLineData_first_5"]
+script = ExtResource("2_dialogue_line")
+text = "你是新来的农场主，对吗？以后经过这里时，请替我留意脚下。"
+
+[sub_resource type="Resource" id="DialogueSequenceData_first_meeting"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"first_meeting"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_first_1"), SubResource("DialogueLineData_first_2"), SubResource("DialogueLineData_first_3"), SubResource("DialogueLineData_first_4"), SubResource("DialogueLineData_first_5")])
+one_shot = true
+
+[sub_resource type="Resource" id="DialogueLineData_offer_still_sprouts_1"]
+script = ExtResource("2_dialogue_line")
+text = "那个……我可以请你帮我确认一件事吗？"
+
+[sub_resource type="Resource" id="DialogueLineData_offer_still_sprouts_2"]
+script = ExtResource("2_dialogue_line")
+text = "温室外的幼苗能够生长，但我还不能确定这里的土壤是否真的恢复了。"
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueLineData_offer_still_sprouts_3"]
+script = ExtResource("2_dialogue_line")
+text = "请你收获3份成熟的小麦，带回来的路上也留意一下它们的叶片和根部。"
+
+[sub_resource type="Resource" id="DialogueLineData_offer_still_sprouts_4"]
+script = ExtResource("2_dialogue_line")
+text = "不需要特意挑最漂亮的。我想看到它们真实生长的样子。"
+
+[sub_resource type="Resource" id="DialogueLineData_offer_still_sprouts_5"]
+script = ExtResource("2_dialogue_line")
+text = "如果土壤真的没有失去活力……也许，我可以再试一次。"
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueSequenceData_quest_offer_still_sprouts"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"quest_offer_still_sprouts"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_offer_still_sprouts_1"), SubResource("DialogueLineData_offer_still_sprouts_2"), SubResource("DialogueLineData_offer_still_sprouts_3"), SubResource("DialogueLineData_offer_still_sprouts_4"), SubResource("DialogueLineData_offer_still_sprouts_5")])
+one_shot = true
+
+[sub_resource type="Resource" id="DialogueLineData_active_still_sprouts_1"]
+script = ExtResource("2_dialogue_line")
+text = "样本不用着急。植物按照自己的速度生长就好。"
+
+[sub_resource type="Resource" id="DialogueLineData_active_still_sprouts_2"]
+script = ExtResource("2_dialogue_line")
+text = "等你收获到足够的小麦，再回来找我吧。"
+
+[sub_resource type="Resource" id="DialogueSequenceData_quest_active_still_sprouts"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"quest_active_still_sprouts"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_active_still_sprouts_1"), SubResource("DialogueLineData_active_still_sprouts_2")])
+
+[sub_resource type="Resource" id="DialogueLineData_ready_still_sprouts_1"]
+script = ExtResource("2_dialogue_line")
+text = "这些就是你收获的样本吗？让我看一下……"
+expression_id = &"surprised"
+
+[sub_resource type="Resource" id="DialogueLineData_ready_still_sprouts_2"]
+script = ExtResource("2_dialogue_line")
+text = "叶片很完整，根部也没有腐坏。它们不是勉强活下来，而是在正常生长。"
+expression_id = &"surprised"
+
+[sub_resource type="Resource" id="DialogueLineData_ready_still_sprouts_3"]
+script = ExtResource("2_dialogue_line")
+text = "原来这里的土壤……真的还有恢复的可能。"
+expression_id = &"happy"
+
+[sub_resource type="Resource" id="DialogueLineData_ready_still_sprouts_4"]
+script = ExtResource("2_dialogue_line")
+text = "谢谢你。我想，我应该重新整理那些旧的研究记录了。"
+expression_id = &"happy"
+
+[sub_resource type="Resource" id="DialogueSequenceData_quest_ready_still_sprouts"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"quest_ready_still_sprouts"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_ready_still_sprouts_1"), SubResource("DialogueLineData_ready_still_sprouts_2"), SubResource("DialogueLineData_ready_still_sprouts_3"), SubResource("DialogueLineData_ready_still_sprouts_4")])
+one_shot = true
+
+[sub_resource type="Resource" id="DialogueLineData_completed_still_sprouts_1"]
+script = ExtResource("2_dialogue_line")
+text = "我重新检查了以前留下的土壤记录。"
+
+[sub_resource type="Resource" id="DialogueLineData_completed_still_sprouts_2"]
+script = ExtResource("2_dialogue_line")
+text = "有些结论或许需要重新验证……不过这一次，我不想再把笔记合上了。"
+expression_id = &"happy"
+
+[sub_resource type="Resource" id="DialogueSequenceData_quest_completed_still_sprouts"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"quest_completed_still_sprouts"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_completed_still_sprouts_1"), SubResource("DialogueLineData_completed_still_sprouts_2")])
+
+[sub_resource type="Resource" id="DialogueLineData_repeat_1"]
+script = ExtResource("2_dialogue_line")
+text = "今天的土壤状态还算稳定。"
+
+[sub_resource type="Resource" id="DialogueLineData_repeat_2"]
+script = ExtResource("2_dialogue_line")
+text = "谢谢你还记得绕开那些幼苗。"
+expression_id = &"happy"
+
+[sub_resource type="Resource" id="DialogueSequenceData_repeat_before_quest"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"repeat_before_quest"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_repeat_1"), SubResource("DialogueLineData_repeat_2")])
+
+[sub_resource type="Resource" id="DialogueLineData_gift_loved_1"]
+script = ExtResource("2_dialogue_line")
+text = "Is this for me? Thank you. I would like to record its condition carefully."
+expression_id = &"happy"
+
+[sub_resource type="Resource" id="DialogueSequenceData_gift_loved"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"gift_loved"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_gift_loved_1")])
+
+[sub_resource type="Resource" id="DialogueLineData_gift_liked_1"]
+script = ExtResource("2_dialogue_line")
+text = "Thank you. It looks well kept. I will take good care of it."
+expression_id = &"happy"
+
+[sub_resource type="Resource" id="DialogueSequenceData_gift_liked"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"gift_liked"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_gift_liked_1")])
+
+[sub_resource type="Resource" id="DialogueLineData_gift_neutral_1"]
+script = ExtResource("2_dialogue_line")
+text = "Thank you. I will put it somewhere suitable."
+
+[sub_resource type="Resource" id="DialogueSequenceData_gift_neutral"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"gift_neutral"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_gift_neutral_1")])
+
+[sub_resource type="Resource" id="DialogueLineData_gift_disliked_1"]
+script = ExtResource("2_dialogue_line")
+text = "This... I am not very good at handling it. Still, thank you."
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueSequenceData_gift_disliked"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"gift_disliked"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_gift_disliked_1")])
+
+[sub_resource type="Resource" id="DialogueLineData_gift_already_today_1"]
+script = ExtResource("2_dialogue_line")
+text = "I already received a gift from you today. Please keep some for yourself."
+
+[sub_resource type="Resource" id="DialogueSequenceData_gift_already_today"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"gift_already_today"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_gift_already_today_1")])
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_1_1"]
+script = ExtResource("2_dialogue_line")
+text = "浣犱粖澶╄蛋杩囨潵鐨勬椂鍊欙紝鎴戝惉瑙佸湡灞備笅闈㈡湁寰堣交鐨勬按澹般€?"
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_1_2"]
+script = ExtResource("2_dialogue_line")
+text = "鍏斿瓙鐨勮€虫湹瀵硅繖浜涢渿鍔ㄥ緢鏁忔劅鈥︹€︿笉杩囦互鍓嶏紝鎴戞€昏寰楄嚜宸卞彲鑳藉惉閿欎簡銆?"
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueSequenceData_relationship_daily_1"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"relationship_daily_1"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_relationship_daily_1_1"), SubResource("DialogueLineData_relationship_daily_1_2")])
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_2_1"]
+script = ExtResource("2_dialogue_line")
+text = "娓╁鍏抽棴鍓嶏紝鏃ф帓姘寸涔熷彂鍑鸿繃鐩镐技鐨勫０闊炽€?"
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_2_2"]
+script = ExtResource("2_dialogue_line")
+text = "鎴戞敞鎰忓埌浜嗭紝鍗存病鏈夌珛鍒诲仠涓嬪疄楠屻€傜瓑鎴戠‘璁ょ殑鏃跺€欙紝鑲茶嫍搴婂凡缁忚繘姘翠簡銆?"
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueSequenceData_relationship_daily_2"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"relationship_daily_2"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_relationship_daily_2_1"), SubResource("DialogueLineData_relationship_daily_2_2")])
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_3_1"]
+script = ExtResource("2_dialogue_line")
+text = "閭ｆ浜嬫晠娌℃湁浼ゅ埌浠讳綍浜猴紝浣嗘垜鐓ч【浜嗗嚑涓湀鐨勫辜鑻楀叏閮芥病鑳界暀涓嬨€?"
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_3_2"]
+script = ExtResource("2_dialogue_line")
+text = "澶у閮借鑰佹棫鐨勭閬撴墠鏄富瑕佸師鍥犮€?"
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_3_3"]
+script = ExtResource("2_dialogue_line")
+text = "鍙垜涓€鐩磋寰楋紝鑷繁鍚寮傚父涔嬪悗锛岃繕鏄姽璞簡寰堜箙銆?"
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueSequenceData_relationship_daily_3"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"relationship_daily_3"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_relationship_daily_3_1"), SubResource("DialogueLineData_relationship_daily_3_2"), SubResource("DialogueLineData_relationship_daily_3_3")])
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_4_1"]
+script = ExtResource("2_dialogue_line")
+text = "鍚庢潵鎴戝父甯告兂锛屽鏋滃綋鏃舵洿鐩镐俊鑷繁鐨勫垽鏂紝缁撴灉浼氫笉浼氫笉鍚屻€?"
+expression_id = &"worried"
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_4_2"]
+script = ExtResource("2_dialogue_line")
+text = "浣嗕綘璁╂垜鏄庣櫧锛岀収椤炬鐗╁苟涓嶆槸姘歌繙涓嶈兘鐘敊銆?"
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_4_3"]
+script = ExtResource("2_dialogue_line")
+text = "鐪熸閲嶈鐨勶紝涔熻鏄湪鍙樺寲鍙戠敓涔嬪悗锛屼粛鐒舵効鎰忕户缁洖搴斿畠浠€?"
+expression_id = &"happy"
+
+[sub_resource type="Resource" id="DialogueSequenceData_relationship_daily_4"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"relationship_daily_4"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_relationship_daily_4_1"), SubResource("DialogueLineData_relationship_daily_4_2"), SubResource("DialogueLineData_relationship_daily_4_3")])
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_5_1"]
+script = ExtResource("2_dialogue_line")
+text = "鏈€杩戯紝鎴戝張鑳藉惉瑙佹俯瀹や笅闈㈢殑姘存祦浜嗐€?"
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_5_2"]
+script = ExtResource("2_dialogue_line")
+text = "杩欎竴娆★紝瀹冨惉璧锋潵涓嶅儚璀﹀憡锛屾洿鍍忔槸鏈変粈涔堟鍦ㄦ參鎱㈤啋鏉ャ€?"
+expression_id = &"happy"
+
+[sub_resource type="Resource" id="DialogueLineData_relationship_daily_5_3"]
+script = ExtResource("2_dialogue_line")
+text = "绛夋垜浠妸閭ｉ噷閲嶆柊鏁寸悊濂斤紝鎴戞兂璇蜂綘涓€璧风湅绗竴鏍噸鏂板紑鑺辩殑妞嶇墿銆?"
+expression_id = &"happy"
+
+[sub_resource type="Resource" id="DialogueSequenceData_relationship_daily_5"]
+script = ExtResource("3_dialogue_sequence")
+sequence_id = &"relationship_daily_5"
+lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_relationship_daily_5_1"), SubResource("DialogueLineData_relationship_daily_5_2"), SubResource("DialogueLineData_relationship_daily_5_3")])
+
+[sub_resource type="Resource" id="RelationshipDialogueTierData_0"]
+script = ExtResource("12_relationship_tier")
+sequence_id = &"quest_completed_still_sprouts"
+
+[sub_resource type="Resource" id="RelationshipDialogueTierData_1"]
+script = ExtResource("12_relationship_tier")
+minimum_hearts = 1
+sequence_id = &"relationship_daily_1"
+
+[sub_resource type="Resource" id="RelationshipDialogueTierData_2"]
+script = ExtResource("12_relationship_tier")
+minimum_hearts = 2
+sequence_id = &"relationship_daily_2"
+
+[sub_resource type="Resource" id="RelationshipDialogueTierData_3"]
+script = ExtResource("12_relationship_tier")
+minimum_hearts = 3
+sequence_id = &"relationship_daily_3"
+
+[sub_resource type="Resource" id="RelationshipDialogueTierData_4"]
+script = ExtResource("12_relationship_tier")
+minimum_hearts = 4
+sequence_id = &"relationship_daily_4"
+
+[sub_resource type="Resource" id="RelationshipDialogueTierData_5"]
+script = ExtResource("12_relationship_tier")
+minimum_hearts = 5
+sequence_id = &"relationship_daily_5"
+
+[resource]
+script = ExtResource("1_npc_data")
+npc_id = &"mira"
+display_name_cn = "米萝"
+display_name_en = "Mira"
+occupation_cn = "植物研究员"
+occupation_en = "Plant Researcher"
+short_description_cn = "负责照料废弃温室周围植物的年轻白兔研究员。性格温柔安静，对植物极有耐心，却因过去的一次实验失败而不敢重新开始。"
+short_description_en = "A gentle and quiet young rabbit researcher who cares for the plants around the abandoned greenhouse. She is deeply patient with plants, but a past experiment failure has made her afraid to begin again."
+portrait_neutral = ExtResource("4_portrait_neutral")
+portrait_happy = ExtResource("5_portrait_happy")
+portrait_worried = ExtResource("6_portrait_worried")
+portrait_surprised = ExtResource("7_portrait_surprised")
+dialogue_sequences = Array[ExtResource("3_dialogue_sequence")]([SubResource("DialogueSequenceData_first_meeting"), SubResource("DialogueSequenceData_quest_offer_still_sprouts"), SubResource("DialogueSequenceData_quest_active_still_sprouts"), SubResource("DialogueSequenceData_quest_ready_still_sprouts"), SubResource("DialogueSequenceData_quest_completed_still_sprouts"), SubResource("DialogueSequenceData_repeat_before_quest"), SubResource("DialogueSequenceData_gift_loved"), SubResource("DialogueSequenceData_gift_liked"), SubResource("DialogueSequenceData_gift_neutral"), SubResource("DialogueSequenceData_gift_disliked"), SubResource("DialogueSequenceData_gift_already_today"), SubResource("DialogueSequenceData_relationship_daily_1"), SubResource("DialogueSequenceData_relationship_daily_2"), SubResource("DialogueSequenceData_relationship_daily_3"), SubResource("DialogueSequenceData_relationship_daily_4"), SubResource("DialogueSequenceData_relationship_daily_5")])
+relationship_dialogue_tiers = Array[ExtResource("12_relationship_tier")]([SubResource("RelationshipDialogueTierData_0"), SubResource("RelationshipDialogueTierData_1"), SubResource("RelationshipDialogueTierData_2"), SubResource("RelationshipDialogueTierData_3"), SubResource("RelationshipDialogueTierData_4"), SubResource("RelationshipDialogueTierData_5")])
+quests = Array[ExtResource("8_quest_data")]([ExtResource("9_mira_still_sprouts_quest")])
+relationship_profile = ExtResource("10_mira_relationship")
+gift_preferences = ExtResource("11_mira_gift_preferences")
+greenhouse_profile = ExtResource("13_mira_greenhouse")
