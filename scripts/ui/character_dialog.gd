@@ -5,6 +5,9 @@ signal dialogue_opened
 signal dialogue_closed
 signal text_reveal_started
 signal text_reveal_finished
+signal choice_selected(index: int)
+
+const CHOICE_FONT: Font = preload("res://graphics/fonts/HomeVideo-Regular.ttf")
 
 @export_group("Text Reveal")
 @export_range(5.0, 120.0, 1.0)
@@ -22,12 +25,73 @@ var _current_full_text: String = ""
 @onready var speaker_name: Label = $Root/BottomMargin/CenterContainer/DialoguePanel/SpeakerName
 @onready var dialogue_text: RichTextLabel = $Root/BottomMargin/CenterContainer/DialoguePanel/DialogueText
 @onready var continue_indicator: TextureRect = $Root/BottomMargin/CenterContainer/DialoguePanel/ContinueIndicator
+@onready var choice_box: VBoxContainer = $Root/BottomMargin/CenterContainer/DialoguePanel/ChoiceBox
 
 
 func _ready() -> void:
 	if not text_reveal_timer.timeout.is_connected(_on_text_reveal_timer_timeout):
 		text_reveal_timer.timeout.connect(_on_text_reveal_timer_timeout)
 	close_dialogue()
+
+
+# --- Player dialogue choices (top-right of the dialogue box) ---
+# Optional: NPCs that offer branching choices (e.g. Courier "Sell"/"Leave")
+# call show_choices() after their line; NPCs that don't (e.g. Mira) never do,
+# so this is fully non-breaking.
+func show_choices(labels: Array) -> void:
+	hide_choices()
+	if labels.is_empty():
+		return
+	for i in range(labels.size()):
+		var button := Button.new()
+		button.text = str(labels[i])
+		button.focus_mode = Control.FOCUS_ALL
+		button.add_theme_font_override("font", CHOICE_FONT)
+		button.add_theme_font_size_override("font_size", 19)
+		button.add_theme_color_override("font_color", Color(0.23, 0.13, 0.08, 1))
+		button.add_theme_color_override("font_hover_color", Color(0.12, 0.07, 0.04, 1))
+		button.add_theme_color_override("font_focus_color", Color(0.12, 0.07, 0.04, 1))
+		button.add_theme_stylebox_override("normal", _make_choice_stylebox(Color(0.89, 0.72, 0.52, 1)))
+		button.add_theme_stylebox_override("hover", _make_choice_stylebox(Color(0.95, 0.82, 0.62, 1)))
+		button.add_theme_stylebox_override("pressed", _make_choice_stylebox(Color(0.82, 0.64, 0.44, 1)))
+		button.add_theme_stylebox_override("focus", _make_choice_stylebox(Color(0.95, 0.82, 0.62, 1)))
+		var index := i
+		button.pressed.connect(func() -> void: _on_choice_pressed(index))
+		choice_box.add_child(button)
+	choice_box.show()
+	await get_tree().process_frame
+	if choice_box.get_child_count() > 0:
+		(choice_box.get_child(0) as Control).grab_focus()
+
+
+func hide_choices() -> void:
+	if choice_box == null:
+		return
+	for child in choice_box.get_children():
+		child.queue_free()
+	choice_box.hide()
+
+
+func has_choices() -> bool:
+	return choice_box != null and choice_box.visible and choice_box.get_child_count() > 0
+
+
+func _on_choice_pressed(index: int) -> void:
+	hide_choices()
+	choice_selected.emit(index)
+
+
+func _make_choice_stylebox(bg: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = Color(0.48, 0.27, 0.15, 1)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(3)
+	style.content_margin_left = 10.0
+	style.content_margin_right = 10.0
+	style.content_margin_top = 3.0
+	style.content_margin_bottom = 3.0
+	return style
 
 
 func show_line(speaker_name_text: String, text: String, portrait_texture: Texture2D = null) -> void:
@@ -60,6 +124,7 @@ func close_dialogue() -> void:
 	dialogue_text.visible_characters = -1
 	_set_portrait(null)
 	continue_indicator.hide()
+	hide_choices()
 	if was_open:
 		dialogue_closed.emit()
 

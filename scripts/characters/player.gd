@@ -17,6 +17,7 @@ var current_seed: Enum.Seed = Enum.Seed.TOMATO
 var seeds_count: int = Enum.Seed.size()
 
 var current_state: Enum.State = Enum.State.DEFAULT
+var fishing_result_resolved: bool = false
 
 var current_style: Enum.Style = Enum.Style.STRAW
 var style_count: int = Data.unlocked_styles.size()
@@ -186,7 +187,13 @@ func get_basic_input():
 			print("Current Seed:" + Enum.Seed.keys()[current_seed])
 		$ToolUI.reveal(null, current_seed)
 		update_control_ui.emit(Enum.KEYBOARD.CHANGE_SEED, current_seed)
-		
+		# When Seed is the active tool, its E-key (CHANGE_TOOL) hint icon must follow
+		# the new seed. ToolUI.reveal() above already refreshed the seed tool texture,
+		# so re-emit CHANGE_TOOL to make the tool hint re-read it instead of keeping
+		# the previous seed's cached texture. Non-Seed tools are left untouched.
+		if current_tool == Enum.Tool.SEED:
+			update_control_ui.emit(Enum.KEYBOARD.CHANGE_TOOL, current_tool)
+
 	# Switch tools
 	if Input.is_action_just_pressed("tool_forward") or Input.is_action_just_pressed("tool_backward"):
 		var dir = Input.get_axis("tool_backward", "tool_forward") # -1, 1
@@ -233,8 +240,7 @@ func get_basic_input():
 		
 
 func get_fishing_input():
-	if Input.is_action_just_pressed("action"):
-		$FishingGame.apply_bar_boost()
+	pass
 
 
 func get_building_input():
@@ -315,14 +321,25 @@ func _on_animation_tree_animation_finished(_anim_name: StringName) -> void:
 
 # Fishing Part
 func start_fishing():
+	fishing_result_resolved = false
 	$FishingGame.reveal()
+	Data.record_manual_fishing_started()
 	$Animation/AnimationTree.set("parameters/FishBlend/blend_amount", 1)
 	current_state = Enum.State.FISHING
 
 
 func _on_fishing_game_fish_game_finish(is_success: bool) -> void:
+	if fishing_result_resolved:
+		return
+
+	fishing_result_resolved = true
 	if is_success:
+		# Phase E: manual fishing success no longer grants direct coins. It only
+		# adds the Fish Item (+1). Fish coin value will be handled by the Phase F
+		# seller system. Fishing telemetry (attempts/successes/failures/duration)
+		# is preserved below.
 		Data.ITEMS_AMOUNT[Enum.Item.FISH] += 1
+	Data.record_manual_fishing_finished(is_success)
 	$Animation/AnimationTree.set("parameters/FishBlend/blend_amount", 0)
 	current_state = Enum.State.DEFAULT
 

@@ -10,7 +10,7 @@ height = 6.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_7bmar"]
 
 [node name="Plant" type="StaticBody2D" unique_id=1540031936 groups=["Plants"]]
-collision_layer = 68
+collision_layer = 0
 collision_mask = 0
 script = ExtResource("1_fvfks")
 

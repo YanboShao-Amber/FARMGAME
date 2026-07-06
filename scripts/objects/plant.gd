@@ -3,6 +3,7 @@ extends StaticBody2D
 var coord: Vector2i
 var res: PlantResource
 var plant_info: PanelContainer
+var is_harvested: bool = false
 
 signal plant_death(coord: Vector2i)
 signal plant_harvest(coord: Vector2i)
@@ -34,22 +35,35 @@ func grow(watered: bool):
 
 
 func _on_collision_area_body_entered(_body: Node2D) -> void:
-	if res.get_complete():
-		var harvested_item: Enum.Item = Data.SEED_TO_ITEM[res.curr_seed_enum]
-		var harvested_amount: int = 2
-		var previous_amount: int = Data.ITEMS_AMOUNT[harvested_item]
-		Data.ITEMS_AMOUNT[harvested_item] += harvested_amount
-		var actual_harvested_amount: int = Data.ITEMS_AMOUNT[harvested_item] - previous_amount
-		if actual_harvested_amount > 0:
-			QuestManager.report_event(
-				QuestObjectiveData.ObjectiveType.HARVEST_CROP,
-				_get_harvested_crop_id(),
-				actual_harvested_amount
-			)
-		print(res.plant_name + " collected")
-		plant_harvest.emit(coord)
-		plant_info.queue_free()
-		self.queue_free()
+	if not res.get_complete():
+		return
+	if is_harvested:
+		return
+
+	var harvested_item = Data.SEED_TO_CROP_ITEM.get(res.curr_seed_enum)
+	if harvested_item == null:
+		push_warning("Missing seed to crop item mapping for seed id: %s" % res.curr_seed_enum)
+		return
+
+	is_harvested = true
+	var harvested_amount: int = 2
+	var previous_amount: int = Data.ITEMS_AMOUNT[harvested_item]
+	Data.ITEMS_AMOUNT[harvested_item] += harvested_amount
+
+	# Phase E: crop harvest no longer grants direct coins. Crops only add the
+	# Crop Item (+2) and advance Mira quest progress. Coin value for crops will be
+	# handled by the Phase F seller system.
+	var actual_harvested_amount: int = Data.ITEMS_AMOUNT[harvested_item] - previous_amount
+	if actual_harvested_amount > 0:
+		QuestManager.report_event(
+			QuestObjectiveData.ObjectiveType.HARVEST_CROP,
+			_get_harvested_crop_id(),
+			actual_harvested_amount
+		)
+	print(res.plant_name + " collected")
+	plant_harvest.emit(coord)
+	plant_info.queue_free()
+	self.queue_free()
 
 
 func _get_harvested_crop_id() -> StringName:

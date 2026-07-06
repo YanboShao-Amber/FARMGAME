@@ -49,11 +49,15 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		var key_event: InputEventKey = event as InputEventKey
 		if key_event.pressed and not key_event.echo and key_event.physical_keycode == TOGGLE_KEY:
+			if _is_character_dialog_open():
+				get_viewport().set_input_as_handled()
+				return
 			_toggle_panel()
 			get_viewport().set_input_as_handled()
 
 
 func _connect_buttons() -> void:
+	_disable_keyboard_focus()
 	if not quest_button.pressed.is_connected(_toggle_panel):
 		quest_button.pressed.connect(_toggle_panel)
 	if not prev_button.pressed.is_connected(_show_previous_page):
@@ -94,6 +98,9 @@ func _on_objective_progress_changed(_quest_id: StringName, _objective_id: String
 
 
 func _toggle_panel() -> void:
+	if _is_character_dialog_open():
+		return
+
 	if tracker_panel.visible:
 		_hide_panel()
 	else:
@@ -254,6 +261,38 @@ func _update_page_buttons() -> void:
 	var has_multiple_pages: bool = _visible_quest_ids.size() > 1
 	prev_button.disabled = not has_multiple_pages
 	next_button.disabled = not has_multiple_pages
+
+
+func _disable_keyboard_focus() -> void:
+	var buttons: Array[TextureButton] = [
+		quest_button,
+		prev_button,
+		next_button,
+		close_button,
+	]
+
+	for button: TextureButton in buttons:
+		if button == null:
+			continue
+		button.focus_mode = Control.FOCUS_NONE
+
+
+func _is_character_dialog_open() -> bool:
+	var current_scene: Node = get_tree().current_scene
+	if current_scene == null:
+		return false
+	return _has_open_character_dialog(current_scene)
+
+
+func _has_open_character_dialog(node: Node) -> bool:
+	if node is CharacterDialog and (node as CharacterDialog).is_dialogue_open():
+		return true
+
+	for child: Node in node.get_children():
+		if _has_open_character_dialog(child):
+			return true
+
+	return false
 
 
 func _clear_objective_rows() -> void:

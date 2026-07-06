@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://ds1ub8iocxsjk"]
+
+[ext_resource type="Script" path="res://scripts/characters/courier_seller_npc.gd" id="1_courier"]
+[ext_resource type="Texture2D" uid="uid://ctq86sgkfof6j" path="res://graphics/Ninja Adventure - Asset Pack/Ninja Adventure - Asset Pack/Ui/Emote/emote21.png" id="2_sign"]
+[ext_resource type="PackedScene" uid="uid://haegb60qacqx" path="res://scenes/ui/character_dialog.tscn" id="3_dialog"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_courier"]
+radius = 5.0
+
+[node name="CourierSellerNPC" type="CharacterBody2D"]
+collision_layer = 44
+collision_mask = 0
+script = ExtResource("1_courier")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 4)
+shape = SubResource("CircleShape2D_courier")
+
+[node name="InteractSign" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+position = Vector2(0, -18)
+texture = ExtResource("2_sign")
+
+[node name="CharacterDialog" parent="." instance=ExtResource("3_dialog")]

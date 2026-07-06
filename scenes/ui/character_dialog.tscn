@@ -102,3 +102,16 @@ offset_top = 128.0
 offset_right = 616.0
 offset_bottom = 149.0
 texture = SubResource("AtlasTexture_continue_indicator")
+
+[node name="ChoiceBox" type="VBoxContainer" parent="Root/BottomMargin/CenterContainer/DialoguePanel"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -179.0
+offset_top = 12.0
+offset_right = -18.0
+offset_bottom = 108.0
+grow_horizontal = 0
+theme_override_constants/separation = 6

@@ -13,8 +13,12 @@ var sprite_size: Vector2                    # Size of the bar sprite
 var fish_enum: Enum.Fish                    # Currently selected fish type
 
 # Movement Variables
-var bar_velocity: float = 8.0               # Current vertical velocity of the bar
-var bar_addon_velocity: float = 20.0        # Acceleration added to bar each frame
+@export var bar_lift_acceleration: float = 1600.0
+@export var bar_fall_acceleration: float = 1200.0
+@export var max_bar_speed: float = 300.0
+@export var boundary_damping: float = 0.25
+
+var bar_velocity: float = 0.0               # Current vertical velocity of the bar
 var fish_velocity: float = 16.0             # Current vertical velocity of the fish
 
 # Game State
@@ -60,7 +64,12 @@ func _process(delta: float) -> void:
 	# ------------------------------------------------------------------------
 	# BAR MOVEMENT
 	# ------------------------------------------------------------------------
-	bar_velocity += bar_addon_velocity * delta
+	if Input.is_action_pressed("action"):
+		bar_velocity -= bar_lift_acceleration * delta
+	else:
+		bar_velocity += bar_fall_acceleration * delta
+
+	bar_velocity = clampf(bar_velocity, -max_bar_speed, max_bar_speed)
 	$BarSprite.position.y += bar_velocity * delta
 	
 	# Clamp bar position to prevent it from escaping the fishing area
@@ -69,6 +78,10 @@ func _process(delta: float) -> void:
 		-y_range / 2.0 + half_bar_height,
 		y_range / 2.0 - half_bar_height
 	)
+	if $BarSprite.position.y <= -y_range / 2.0 + half_bar_height and bar_velocity < 0.0:
+		bar_velocity = 0.0
+	elif $BarSprite.position.y >= y_range / 2.0 - half_bar_height and bar_velocity > 0.0:
+		bar_velocity *= boundary_damping
 	
 	# ------------------------------------------------------------------------
 	# FISH MOVEMENT
@@ -137,6 +150,8 @@ func reveal() -> void:
 	
 	# Reset progress bar
 	$Control/TextureProgressBar.value = progress
+	$BarSprite.position.y = 0.0
+	bar_velocity = 0.0
 	
 	# Position fish randomly within the fishing area
 	var random_y: float = randf_range(-y_range / 2.0, y_range / 2.0)

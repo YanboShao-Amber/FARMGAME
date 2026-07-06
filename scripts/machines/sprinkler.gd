@@ -3,7 +3,7 @@ extends Machine
 signal water_near_soils(sprinkler_coord: Vector2i)
 
 
-func setup(grid_coord: Vector2i, level: Node2D, parent: Node2D):
+func setup(grid_coord: Vector2i, level: Node2D, parent: Node2D) -> bool:
 	self.connect("water_near_soils", level.water_near_soils)
 	
 	return super.setup(grid_coord, level, parent)

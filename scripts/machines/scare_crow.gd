@@ -7,7 +7,7 @@ signal shoot_projectile(start_pos: Vector2, dir: Vector2)
 
 
 # Override machine setup function
-func setup(grid_coord: Vector2i, level: Node2D, parent: Node2D):
+func setup(grid_coord: Vector2i, level: Node2D, parent: Node2D) -> bool:
 	self.connect("shoot_projectile", level.create_projectile)
 	
 	return super.setup(grid_coord, level, parent)

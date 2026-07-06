@@ -525,8 +525,11 @@ func _grant_quest_rewards(quest_data: QuestData) -> void:
 	if quest_data == null:
 		return
 
-	if quest_data.reward_coins > 0 and not Data.add_coins(quest_data.reward_coins):
-		push_warning("MiraNPC could not grant %d coins for quest '%s'." % [quest_data.reward_coins, String(quest_data.quest_id)])
+	if quest_data.reward_coins > 0:
+		if Data.add_coins(quest_data.reward_coins):
+			Data.record_playtest_coin_income("quest_mira_still_sprouts", quest_data.reward_coins)
+		else:
+			push_warning("MiraNPC could not grant %d coins for quest '%s'." % [quest_data.reward_coins, String(quest_data.quest_id)])
 
 
 func _can_gifting_override_dialogue() -> bool:
@@ -629,9 +632,8 @@ func _get_selected_gift_item_id(player: Node) -> StringName:
 		return &""
 	if int(selected_tool) != Enum.Tool.SEED:
 		return &""
-	if not Data.SEED_TO_ITEM.has(int(selected_seed)):
-		return &""
-	return Data.get_item_id(Data.SEED_TO_ITEM[int(selected_seed)])
+	push_warning("MiraNPC gift blocked: Seed tool selection is not a mature crop gift.")
+	return &""
 
 
 func _get_selected_gift_item_amount(player: Node) -> int:

@@ -71,6 +71,11 @@ func day_restart():
 
 
 func level_reset():
+	Data.record_playtest_day_end(
+		Data.CURRENT_DAY_ID,
+		get_tree().get_nodes_in_group("Plants").size(),
+		machine_cells.size()
+	)
 	Data.advance_game_day()
 	for plant: StaticBody2D in get_tree().get_nodes_in_group("Plants"):
 		plant.grow(plant.coord in $Layers/WetSoilLayer.get_used_cells())
@@ -101,6 +106,10 @@ func waterSoils():
 				0,
 				Vector2i(randi_range(0, 2), 0)
 			)
+
+
+func _on_water_all_button_pressed() -> void:
+	waterSoils()
 
 
 # =========================================================
@@ -136,14 +145,22 @@ func _on_player_tool_use(tool: Enum.Tool, pos: Vector2, dir: Vector2) -> void:
 		Enum.Tool.FISH:
 			$Objects/Player.start_fishing()
 			
-		Enum.Tool.SEED:			
-			if Data.ITEMS_AMOUNT[Data.SEED_TO_ITEM[%Player.current_seed]] <= 0:
+		Enum.Tool.SEED:
+			var current_seed: int = %Player.current_seed
+			var seed_item = Data.SEED_TO_SEED_ITEM.get(current_seed)
+			if seed_item == null:
+				push_warning("Missing seed item mapping for seed id: %s" % current_seed)
 				return
-			else:
-				Data.ITEMS_AMOUNT[Data.SEED_TO_ITEM[%Player.current_seed]] -= 1
-					
+
+			var seed_amount: int = int(Data.ITEMS_AMOUNT.get(seed_item, 0))
+			if seed_amount <= 0:
+				return
+
+			if not is_tool_valid(Enum.Tool.SEED, grid_coord):
+				return
+
 			var plant_res = PlantResource.new()
-			plant_res.setup(%Player.current_seed)
+			plant_res.setup(current_seed)
 			var plant := plant_scene.instantiate()
 			
 			# Plant Info
@@ -154,6 +171,7 @@ func _on_player_tool_use(tool: Enum.Tool, pos: Vector2, dir: Vector2) -> void:
 			plant.setup(grid_coord, $Objects, plant_res, plant_info,
 						 plant_death, plant_harvest)
 			planted_cells.append(grid_coord)
+			Data.ITEMS_AMOUNT[seed_item] -= 1
 		Enum.Tool.AXE:
 			for object in get_tree().get_nodes_in_group("Axe_able"):
 				var to_object = (object.position - pos)
@@ -193,7 +211,9 @@ func _ready() -> void:
 	#$Objects/ScareCrow.connect("shoot_projectile", create_projectile)
 	for character in get_tree().get_nodes_in_group("ShopCharacters"):
 		character.connect("open_shop", open_shop)
-		
+
+	_connect_courier_seller()
+
 	# Connect to device connection signals
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
 	
@@ -209,33 +229,108 @@ func create_projectile(start_pos: Vector2, dir: Vector2):
 
 
 func _on_player_build(curr_machine: int) -> void:
-	if $Objects/House.is_point_inside_house(machine_coord):
-		return
+	var grid_coord := Vector2i(machine_coord)
 	
 	if curr_machine != Enum.Machine.DELETE:
-		if is_object_near_cell(machine_coord):
+		if not _can_place_machine(curr_machine, grid_coord):
 			return
-			
-		if machine_coord in machine_cells:
-			return
-			
-		if machine_coord in planted_cells:
-			return
-		
-		var cell = $Layers/WaterGrassLayer.get_cell_tile_data(machine_coord)
-		if cell.get_custom_data("water"):
-			return
-		
+
 		var machine = Data.MACHINE_SCENE[curr_machine]["scene"].instantiate()
+		if not machine is Machine:
+			push_warning("Machine scene did not instantiate a Machine for machine id: %s" % curr_machine)
+			_discard_failed_machine_instance(machine)
+			return
+
+		var setup_succeeded: bool = machine.setup(grid_coord, self, $Objects/Machines)
+		if not setup_succeeded:
+			_discard_failed_machine_instance(machine)
+			return
+
+		_deduct_machine_placement_cost(curr_machine)
 		self.connect("delete_machine", machine.delete)
-		machine.setup(machine_coord, self, $Objects/Machines)
-		machine_cells.append(machine_coord)
+		machine_cells.append(grid_coord)
+		var telemetry_source: String = Data.MACHINE_PLACEMENT_TELEMETRY_SOURCES.get(curr_machine, "")
+		if not telemetry_source.is_empty():
+			Data.record_playtest_machine_placement(
+				telemetry_source,
+				curr_machine,
+				Data.MACHINE_PLACEMENT_COSTS[curr_machine],
+				grid_coord
+			)
 	else:
-		if machine_coord in machine_cells:
-			delete_machine.emit(machine_coord)
-			machine_cells.erase(machine_coord)
+		if grid_coord in machine_cells:
+			delete_machine.emit(grid_coord)
+			machine_cells.erase(grid_coord)
 	
-		
+
+func _can_place_machine(machine_id: int, grid_coord: Vector2i) -> bool:
+	if machine_id == Enum.Machine.DELETE:
+		return false
+
+	if machine_id not in Data.unlocked_machines:
+		push_warning("Machine blueprint is not unlocked for machine id: %s" % machine_id)
+		return false
+
+	if not Data.MACHINE_SCENE.has(machine_id):
+		push_warning("Missing machine scene for machine id: %s" % machine_id)
+		return false
+
+	if not Data.MACHINE_PLACEMENT_COSTS.has(machine_id):
+		push_warning("Missing machine placement cost for machine id: %s" % machine_id)
+		return false
+
+	if $Objects/House.is_point_inside_house(grid_coord):
+		return false
+
+	if is_object_near_cell(grid_coord):
+		return false
+
+	if grid_coord in machine_cells:
+		return false
+
+	if grid_coord in planted_cells:
+		return false
+
+	var cell = $Layers/WaterGrassLayer.get_cell_tile_data(grid_coord)
+	if not cell or cell.get_custom_data("water"):
+		return false
+
+	return _can_afford_machine_placement(machine_id)
+
+
+func _can_afford_machine_placement(machine_id: int) -> bool:
+	var placement_costs: Dictionary = Data.MACHINE_PLACEMENT_COSTS[machine_id]
+	for item in placement_costs:
+		var required_amount: int = int(placement_costs[item])
+		if required_amount <= 0:
+			push_warning("Machine placement material cost must be greater than zero: item=%s, cost=%s" %
+				[item, required_amount])
+			return false
+		var current_amount: int = int(Data.ITEMS_AMOUNT.get(item, 0))
+		if current_amount < required_amount:
+			print("Not enough material to place machine: item=%s, required=%s, current=%s" %
+				[item, required_amount, current_amount])
+			return false
+
+	return true
+
+
+func _deduct_machine_placement_cost(machine_id: int) -> void:
+	var placement_costs: Dictionary = Data.MACHINE_PLACEMENT_COSTS[machine_id]
+	for item in placement_costs:
+		Data.ITEMS_AMOUNT[item] -= int(placement_costs[item])
+
+
+func _discard_failed_machine_instance(machine: Node) -> void:
+	if machine == null:
+		return
+
+	if machine.is_inside_tree():
+		machine.queue_free()
+	else:
+		machine.free()
+
+
 func _on_player_change_machine(curr_machine: int) -> void:
 	var machine_texture = Data.MACHINE_PREVIEW_TEXTURES[curr_machine]["texture"]
 	$Overlay/PreviewMachineSprite2D.texture = machine_texture
@@ -383,6 +478,44 @@ func _on_player_close_shop() -> void:
 	$Overlay/CanvasLayer/ShopUI.hide()
 	$Overlay/CanvasLayer/ShopUI.remove_items()
 	player.current_state = Enum.State.DEFAULT
+
+
+# =========================================================
+# Courier seller (Phase F)
+# =========================================================
+func _connect_courier_seller() -> void:
+	var courier: Node = get_node_or_null("Objects/CourierSellerNPC")
+	var sell_ui: Node = get_node_or_null("SellUI")
+	if courier == null or sell_ui == null:
+		return
+	if not courier.request_open_sell_panel.is_connected(_open_sell_panel):
+		courier.request_open_sell_panel.connect(_open_sell_panel)
+	if not courier.request_close_sell_panel.is_connected(_force_close_sell_panel):
+		courier.request_close_sell_panel.connect(_force_close_sell_panel)
+	if not sell_ui.closed.is_connected(_on_sell_ui_closed):
+		sell_ui.closed.connect(_on_sell_ui_closed)
+
+
+func _open_sell_panel() -> void:
+	var sell_ui: Node = get_node_or_null("SellUI")
+	if sell_ui != null:
+		sell_ui.reveal()
+
+
+# Player closed the Sell panel: hand control back to the Courier so it can
+# restore its facing and release the player's dialogue lock.
+func _on_sell_ui_closed() -> void:
+	var courier: Node = get_node_or_null("Objects/CourierSellerNPC")
+	if is_instance_valid(courier):
+		courier.on_sell_panel_closed()
+
+
+# Defensive teardown (e.g. player somehow left range mid-sale): hide the panel
+# without re-notifying the Courier, which already ended the interaction.
+func _force_close_sell_panel() -> void:
+	var sell_ui: Node = get_node_or_null("SellUI")
+	if sell_ui != null and sell_ui.is_open():
+		sell_ui.force_close()
 
 
 func _on_joy_connection_changed(device_id: int, connected: bool):

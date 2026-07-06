@@ -3,7 +3,7 @@ extends Machine
 var anim_name: String = "up"
 
 
-func setup(grid_coord: Vector2i, level: Node2D, parent: Node2D):
+func setup(grid_coord: Vector2i, level: Node2D, parent: Node2D) -> bool:
 	# Define the 4 directions to check
 	var directions = {
 		Vector2i.UP: "up",
