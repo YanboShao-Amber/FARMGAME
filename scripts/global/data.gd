@@ -84,46 +84,217 @@ const MANUAL_FISHING_COIN_REWARD: int = 25
 # Provisional sale prices; rebalanced in Phase G.
 # NOT derived from the deprecated CROP_COIN_REWARDS / MANUAL_FISHING_COIN_REWARD.
 # =========================================================
-const SELL_PRICES: Dictionary = {
-	Enum.Item.WHEAT: 10,
-	Enum.Item.CORN: 12,
-	Enum.Item.TOMATO: 20,
-	Enum.Item.PUMPKIN: 75,
-	Enum.Item.FISH: 25}
+const ITEM_BUY_PRICES: Dictionary = {
+	Enum.Item.WHEAT_SEED: 10,
+	Enum.Item.CORN_SEED: 12,
+	Enum.Item.TOMATO_SEED: 18,
+	Enum.Item.PUMPKIN_SEED: 30,
+	Enum.Item.WHEAT: 18,
+	Enum.Item.CORN: 22,
+	Enum.Item.TOMATO: 38,
+	Enum.Item.PUMPKIN: 120,
+	# Deprecated compatibility price. Generic FISH is not in TRADEABLE_ITEMS
+	# and cannot be actively bought.
+	Enum.Item.FISH: 22,
+	Enum.Item.GRAY_CARP: 16,
+	Enum.Item.SILVER_PERCH: 24,
+	Enum.Item.GOLDEN_KOI: 38,
+	Enum.Item.RED_SNAPPER: 65,
+	Enum.Item.WOOD: 8,
+	Enum.Item.APPLE: 10}
 
-# Positive whitelist. Only these items may ever be sold. Seeds/wood/apple/coin
-# are intentionally excluded so future items are never accidentally sellable.
-const SELLABLE_ITEMS: Array[Enum.Item] = [
+const ITEM_SELL_PRICES: Dictionary = {
+	Enum.Item.WHEAT_SEED: 8,
+	Enum.Item.CORN_SEED: 9,
+	Enum.Item.TOMATO_SEED: 13,
+	Enum.Item.PUMPKIN_SEED: 22,
+	Enum.Item.WHEAT: 12,
+	Enum.Item.CORN: 15,
+	Enum.Item.TOMATO: 25,
+	Enum.Item.PUMPKIN: 80,
+	# Deprecated compatibility price. Generic FISH is not in TRADEABLE_ITEMS
+	# and cannot be actively sold.
+	Enum.Item.FISH: 15,
+	Enum.Item.GRAY_CARP: 9,
+	Enum.Item.SILVER_PERCH: 14,
+	Enum.Item.GOLDEN_KOI: 24,
+	Enum.Item.RED_SNAPPER: 42,
+	Enum.Item.WOOD: 5,
+	Enum.Item.APPLE: 6}
+
+const TRADEABLE_ITEMS: Array[Enum.Item] = [
+	Enum.Item.WHEAT_SEED,
+	Enum.Item.CORN_SEED,
+	Enum.Item.TOMATO_SEED,
+	Enum.Item.PUMPKIN_SEED,
 	Enum.Item.WHEAT,
 	Enum.Item.CORN,
 	Enum.Item.TOMATO,
 	Enum.Item.PUMPKIN,
-	Enum.Item.FISH]
+	Enum.Item.GRAY_CARP,
+	Enum.Item.SILVER_PERCH,
+	Enum.Item.GOLDEN_KOI,
+	Enum.Item.RED_SNAPPER,
+	Enum.Item.WOOD,
+	Enum.Item.APPLE]
+
+const VISIBLE_INVENTORY_ITEMS: Array[Enum.Item] = [
+	Enum.Item.WOOD,
+	Enum.Item.APPLE,
+	Enum.Item.GRAY_CARP,
+	Enum.Item.SILVER_PERCH,
+	Enum.Item.GOLDEN_KOI,
+	Enum.Item.RED_SNAPPER,
+	Enum.Item.CORN,
+	Enum.Item.WHEAT,
+	Enum.Item.PUMPKIN,
+	Enum.Item.TOMATO,
+	Enum.Item.TOMATO_SEED,
+	Enum.Item.CORN_SEED,
+	Enum.Item.PUMPKIN_SEED,
+	Enum.Item.WHEAT_SEED]
+
+# Phase H3B: fishing now rolls concrete species. Generic Enum.Item.FISH remains
+# only for deprecated compatibility metadata and old inventory snapshots.
+const FISH_SPECIES_ITEMS: Array[Enum.Item] = [
+	Enum.Item.GRAY_CARP,
+	Enum.Item.SILVER_PERCH,
+	Enum.Item.GOLDEN_KOI,
+	Enum.Item.RED_SNAPPER]
+
+const FISH_RARITIES: Dictionary = {
+	Enum.Item.GRAY_CARP: "common",
+	Enum.Item.SILVER_PERCH: "common_uncommon",
+	Enum.Item.GOLDEN_KOI: "uncommon_rare",
+	Enum.Item.RED_SNAPPER: "rare"}
+
+const MANUAL_FISHING_DROP_TABLE: Array[Dictionary] = [
+	{"item": Enum.Item.GRAY_CARP, "weight": 50},
+	{"item": Enum.Item.SILVER_PERCH, "weight": 30},
+	{"item": Enum.Item.GOLDEN_KOI, "weight": 15},
+	{"item": Enum.Item.RED_SNAPPER, "weight": 5}]
+
+const AUTOMATIC_FISHER_DROP_TABLE: Array[Dictionary] = [
+	{"item": Enum.Item.GRAY_CARP, "weight": 70},
+	{"item": Enum.Item.SILVER_PERCH, "weight": 30}]
+
+const MANUAL_FISHING_PROFILES: Dictionary = {
+	Enum.Item.GRAY_CARP: {
+		"move_speed": 0.28,
+		"retarget_min": 1.2,
+		"retarget_max": 2.0,
+		"dart_chance": 0.0,
+		"jitter": 0.015},
+	Enum.Item.SILVER_PERCH: {
+		"move_speed": 0.38,
+		"retarget_min": 0.8,
+		"retarget_max": 1.4,
+		"dart_chance": 0.08,
+		"jitter": 0.035},
+	Enum.Item.GOLDEN_KOI: {
+		"move_speed": 0.52,
+		"retarget_min": 0.45,
+		"retarget_max": 0.9,
+		"dart_chance": 0.18,
+		"jitter": 0.055},
+	Enum.Item.RED_SNAPPER: {
+		"move_speed": 0.65,
+		"retarget_min": 0.3,
+		"retarget_max": 0.7,
+		"dart_chance": 0.28,
+		"jitter": 0.075}}
+
+const ITEM_CATEGORIES: Dictionary = {
+	&"fish": [
+		Enum.Item.GRAY_CARP,
+		Enum.Item.SILVER_PERCH,
+		Enum.Item.GOLDEN_KOI,
+		Enum.Item.RED_SNAPPER]}
+
+const CATEGORY_DISPLAY_NAMES: Dictionary = {
+	&"fish": "Any Fish"}
+
+const CATEGORY_ICON_ITEMS: Dictionary = {
+	&"fish": Enum.Item.GRAY_CARP}
+
+# Backward-compatible aliases for the old Courier seller API.
+const SELL_PRICES: Dictionary = ITEM_SELL_PRICES
+const SELLABLE_ITEMS: Array[Enum.Item] = TRADEABLE_ITEMS
 
 const SALE_TELEMETRY_SOURCES: Dictionary = {
+	Enum.Item.WHEAT_SEED: "sale_wheat_seed",
+	Enum.Item.CORN_SEED: "sale_corn_seed",
+	Enum.Item.TOMATO_SEED: "sale_tomato_seed",
+	Enum.Item.PUMPKIN_SEED: "sale_pumpkin_seed",
 	Enum.Item.WHEAT: "sale_wheat",
 	Enum.Item.CORN: "sale_corn",
 	Enum.Item.TOMATO: "sale_tomato",
 	Enum.Item.PUMPKIN: "sale_pumpkin",
-	Enum.Item.FISH: "sale_fish"}
+	# Historical compatibility source only. New runtime transactions cannot
+	# generate this source because Generic FISH is not tradeable.
+	Enum.Item.FISH: "sale_fish",
+	Enum.Item.GRAY_CARP: "sale_gray_carp",
+	Enum.Item.SILVER_PERCH: "sale_silver_perch",
+	Enum.Item.GOLDEN_KOI: "sale_golden_koi",
+	Enum.Item.RED_SNAPPER: "sale_red_snapper",
+	Enum.Item.WOOD: "sale_wood",
+	Enum.Item.APPLE: "sale_apple"}
 
-# One-time coin cost for permanently unlocking a machine blueprint.
+const BUY_TELEMETRY_SOURCES: Dictionary = {
+	Enum.Item.WHEAT_SEED: "buy_wheat_seed",
+	Enum.Item.CORN_SEED: "buy_corn_seed",
+	Enum.Item.TOMATO_SEED: "buy_tomato_seed",
+	Enum.Item.PUMPKIN_SEED: "buy_pumpkin_seed",
+	Enum.Item.WHEAT: "buy_wheat",
+	Enum.Item.CORN: "buy_corn",
+	Enum.Item.TOMATO: "buy_tomato",
+	Enum.Item.PUMPKIN: "buy_pumpkin",
+	# Historical compatibility source only. New runtime transactions cannot
+	# generate this source because Generic FISH is not tradeable.
+	Enum.Item.FISH: "buy_fish",
+	Enum.Item.GRAY_CARP: "buy_gray_carp",
+	Enum.Item.SILVER_PERCH: "buy_silver_perch",
+	Enum.Item.GOLDEN_KOI: "buy_golden_koi",
+	Enum.Item.RED_SNAPPER: "buy_red_snapper",
+	Enum.Item.WOOD: "buy_wood",
+	Enum.Item.APPLE: "buy_apple"}
+
+const MERCHANT_CATALOGS: Dictionary = {
+	"courier": {
+		"name": "Courier",
+		"items": TRADEABLE_ITEMS,
+		"unlocks": []},
+	"cat": {
+		"name": "Cat",
+		"items": [],
+		"unlocks": [
+			{"type": "machine", "id": Enum.Machine.SPRINKLER},
+			{"type": "machine", "id": Enum.Machine.FISHER},
+			{"type": "machine", "id": Enum.Machine.SCARECROW}]},
+	"mouse": {
+		"name": "Mouse",
+		"items": [],
+		"unlocks": [
+			{"type": "style", "id": Enum.Style.COWBOY},
+			{"type": "style", "id": Enum.Style.BASEBALL},
+			{"type": "style", "id": Enum.Style.BEANIE}]}}
+
+# One-time coin cost for permanently unlocking a machine blueprint. (Phase G v3)
 const MACHINE_BLUEPRINT_COIN_COSTS: Dictionary = {
-	Enum.Machine.SPRINKLER: 400,
-	Enum.Machine.FISHER: 600,
-	Enum.Machine.SCARECROW: 900}
+	Enum.Machine.SPRINKLER: 250,
+	Enum.Machine.FISHER: 350,
+	Enum.Machine.SCARECROW: 500}
 
 # Material recipe consumed for every successfully placed machine instance.
 const MACHINE_PLACEMENT_COSTS: Dictionary = {
 	Enum.Machine.SPRINKLER: {
-		Enum.Item.TOMATO: 2,
-		Enum.Item.WHEAT: 4},
+		Enum.Item.WOOD: 10},
 	Enum.Machine.FISHER: {
-		Enum.Item.WOOD: 8,
-		Enum.Item.FISH: 4},
+		Enum.Item.WOOD: 15},
 	Enum.Machine.SCARECROW: {
-		Enum.Item.PUMPKIN: 1,
-		Enum.Item.CORN: 4}}
+		Enum.Item.WOOD: 20}}
+
+const MACHINE_CATEGORY_COSTS: Dictionary = {}
 
 const STYLE_COIN_COSTS: Dictionary = {
 	Enum.Style.COWBOY: 300,
@@ -142,7 +313,7 @@ const STYLE_RESOURCE_COSTS: Dictionary = {
 		Enum.Item.WHEAT: 4}}
 
 const PLAYTEST_TELEMETRY_ENABLED: bool = true
-const PLAYTEST_RUN_LABEL: String = "V1"
+const PLAYTEST_RUN_LABEL: String = "V3_FISH_SPECIES"
 const PLAYTEST_LOG_DIR: String = "user://playtest_logs"
 
 # Deprecated after Phase E.
@@ -173,6 +344,10 @@ const ITEM_TELEMETRY_KEYS: Dictionary = {
 	Enum.Item.WOOD: "wood",
 	Enum.Item.APPLE: "apple",
 	Enum.Item.FISH: "fish",
+	Enum.Item.GRAY_CARP: "gray_carp",
+	Enum.Item.SILVER_PERCH: "silver_perch",
+	Enum.Item.GOLDEN_KOI: "golden_koi",
+	Enum.Item.RED_SNAPPER: "red_snapper",
 	Enum.Item.CORN: "corn",
 	Enum.Item.WHEAT: "wheat",
 	Enum.Item.PUMPKIN: "pumpkin",
@@ -308,6 +483,10 @@ const PLAYER_SPEED = 70.0
 const ICON_PATHS = {
 	Enum.Item.WOOD: "res://graphics/icons/wood.png",
 	Enum.Item.FISH: "res://graphics/icons/goldfish.png",
+	Enum.Item.GRAY_CARP: "res://graphics/icons/grayfish.png",
+	Enum.Item.SILVER_PERCH: "res://graphics/icons/silverfish.png",
+	Enum.Item.GOLDEN_KOI: "res://graphics/icons/goldfish.png",
+	Enum.Item.RED_SNAPPER: "res://graphics/Ninja Adventure - Asset Pack/Ninja Adventure - Asset Pack/Actor/Animals/Fish/SpriteSheetRed.png",
 	Enum.Item.APPLE: "res://graphics/icons/apple.png",
 	Enum.Item.CORN: "res://graphics/icons/corn.png",
 	Enum.Item.WHEAT: "res://graphics/icons/wheat.png",
@@ -335,6 +514,9 @@ const TEXTURES = {
 	Enum.Item.WOOD: preload("res://graphics/icons/wood.png"),
 	Enum.Item.APPLE: preload("res://graphics/icons/apple.png"),
 	Enum.Item.FISH: preload("res://graphics/icons/goldfish.png"),
+	Enum.Item.GRAY_CARP: preload("res://graphics/icons/grayfish.png"),
+	Enum.Item.SILVER_PERCH: preload("res://graphics/icons/silverfish.png"),
+	Enum.Item.GOLDEN_KOI: preload("res://graphics/icons/goldfish.png"),
 	Enum.Item.CORN: preload("res://graphics/icons/corn.png"),
 	Enum.Item.TOMATO: preload("res://graphics/icons/tomato.png"),
 	Enum.Item.PUMPKIN: preload("res://graphics/icons/pumpkin.png"),
@@ -342,6 +524,12 @@ const TEXTURES = {
 
 const COIN_ICON_SHEET: Texture2D = preload("res://graphics/ui/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Icons/special icons/Special Icons.png")
 const SPROUT_LANDS_EMOJI_SHEET: Texture2D = preload("res://graphics/ui/Sprout Lands - UI Pack - Basic pack/emojis-free/Emoji_Spritesheet_Free.png")
+const RED_SNAPPER_TEXTURE_SHEET: Texture2D = preload("res://graphics/Ninja Adventure - Asset Pack/Ninja Adventure - Asset Pack/Actor/Animals/Fish/SpriteSheetRed.png")
+
+# Temporary fourth fish icon. Keep the RED_SNAPPER item ID stable if the
+# texture is replaced later.
+const FISH_ITEM_TEXTURE_REGIONS: Dictionary = {
+	Enum.Item.RED_SNAPPER: Rect2(0, 0, 16, 16)}
 
 # Temporary Phase B seed icons.
 # Uses Sprout Lands crop/farming emoji regions until dedicated seed artwork exists.
@@ -356,6 +544,10 @@ var ITEMS_AMOUNT = {
 	Enum.Item.WOOD: 10,
 	Enum.Item.APPLE: 5,
 	Enum.Item.FISH: 0,
+	Enum.Item.GRAY_CARP: 0,
+	Enum.Item.SILVER_PERCH: 0,
+	Enum.Item.GOLDEN_KOI: 0,
+	Enum.Item.RED_SNAPPER: 0,
 	Enum.Item.CORN: 0,
 	Enum.Item.WHEAT: 0,
 	Enum.Item.PUMPKIN: 0,
@@ -380,6 +572,10 @@ const ITEM_IDS = {
 	Enum.Item.WHEAT: &"WHEAT",
 	Enum.Item.PUMPKIN: &"PUMPKIN",
 	Enum.Item.FISH: &"FISH",
+	Enum.Item.GRAY_CARP: &"GRAY_CARP",
+	Enum.Item.SILVER_PERCH: &"SILVER_PERCH",
+	Enum.Item.GOLDEN_KOI: &"GOLDEN_KOI",
+	Enum.Item.RED_SNAPPER: &"RED_SNAPPER",
 	Enum.Item.COIN: &"COIN",
 	Enum.Item.TOMATO_SEED: &"TOMATO_SEED",
 	Enum.Item.CORN_SEED: &"CORN_SEED",
@@ -394,6 +590,10 @@ const ITEM_ID_TO_ENUM = {
 	&"WHEAT": Enum.Item.WHEAT,
 	&"PUMPKIN": Enum.Item.PUMPKIN,
 	&"FISH": Enum.Item.FISH,
+	&"GRAY_CARP": Enum.Item.GRAY_CARP,
+	&"SILVER_PERCH": Enum.Item.SILVER_PERCH,
+	&"GOLDEN_KOI": Enum.Item.GOLDEN_KOI,
+	&"RED_SNAPPER": Enum.Item.RED_SNAPPER,
 	&"COIN": Enum.Item.COIN,
 	&"TOMATO_SEED": Enum.Item.TOMATO_SEED,
 	&"CORN_SEED": Enum.Item.CORN_SEED,
@@ -408,6 +608,10 @@ const ITEM_DISPLAY_NAMES = {
 	&"WHEAT": "Wheat",
 	&"PUMPKIN": "Pumpkin",
 	&"FISH": "Fish",
+	&"GRAY_CARP": "Gray Carp",
+	&"SILVER_PERCH": "Silver Perch",
+	&"GOLDEN_KOI": "Golden Koi",
+	&"RED_SNAPPER": "Red Snapper",
 	&"COIN": "Coin",
 	&"TOMATO_SEED": "Tomato Seeds",
 	&"CORN_SEED": "Corn Seeds",
@@ -453,26 +657,68 @@ func spend_coins(amount: int) -> bool:
 # =========================================================
 # Phase F — Seller transaction (single source of truth)
 # =========================================================
+func is_item_tradeable(item: Enum.Item) -> bool:
+	return TRADEABLE_ITEMS.has(item)
+
+
 func is_item_sellable(item: Enum.Item) -> bool:
-	return SELLABLE_ITEMS.has(item)
+	return is_item_tradeable(item)
+
+
+func get_buy_price(item: Enum.Item) -> int:
+	if not ITEM_BUY_PRICES.has(item):
+		return 0
+	return int(ITEM_BUY_PRICES[item])
 
 
 func get_sell_price(item: Enum.Item) -> int:
-	if not SELL_PRICES.has(item):
+	if not ITEM_SELL_PRICES.has(item):
 		return 0
-	return int(SELL_PRICES[item])
+	return int(ITEM_SELL_PRICES[item])
+
+
+func try_buy_item(item: Enum.Item, quantity: int, merchant_id: String = "courier") -> int:
+	if not is_item_tradeable(item):
+		push_warning("Item is not tradeable: %s" % item)
+		return 0
+	if not ITEM_BUY_PRICES.has(item):
+		push_warning("Missing buy price for item: %s" % item)
+		return 0
+	var unit_price: int = int(ITEM_BUY_PRICES[item])
+	if unit_price <= 0:
+		push_warning("Buy unit price must be greater than zero: item=%s" % item)
+		return 0
+	if quantity <= 0:
+		return 0
+	var total: int = unit_price * quantity
+	if total <= 0:
+		push_warning("Invalid buy total: item=%s, quantity=%s" % [item, quantity])
+		return 0
+	if get_coins() < total:
+		return 0
+
+	var owned: int = int(ITEMS_AMOUNT.get(item, 0))
+	if not spend_coins(total):
+		return 0
+	ITEMS_AMOUNT[item] = owned + quantity
+
+	var telemetry_source: String = BUY_TELEMETRY_SOURCES.get(item, "")
+	if not telemetry_source.is_empty():
+		record_playtest_coin_spending(telemetry_source, total)
+	record_playtest_trade_buy(merchant_id, item, quantity, unit_price, total)
+	return quantity
 
 
 # Atomic sale. Returns total coins earned, or 0 on any failure.
 # On failure nothing changes: no item removed, no coin added, no telemetry.
-func try_sell_item(item: Enum.Item, quantity: int) -> int:
+func try_sell_item(item: Enum.Item, quantity: int, merchant_id: String = "courier") -> int:
 	if not is_item_sellable(item):
 		push_warning("Item is not sellable: %s" % item)
 		return 0
-	if not SELL_PRICES.has(item):
+	if not ITEM_SELL_PRICES.has(item):
 		push_warning("Missing sell price for item: %s" % item)
 		return 0
-	var unit_price: int = int(SELL_PRICES[item])
+	var unit_price: int = int(ITEM_SELL_PRICES[item])
 	if unit_price <= 0:
 		push_warning("Sell unit price must be greater than zero: item=%s" % item)
 		return 0
@@ -485,15 +731,365 @@ func try_sell_item(item: Enum.Item, quantity: int) -> int:
 	var total: int = unit_price * quantity
 	ITEMS_AMOUNT[item] = owned - quantity
 	if not add_coins(total):
-		# Practically unreachable (total > 0); revert defensively on failure.
 		ITEMS_AMOUNT[item] = owned
 		return 0
 
 	var telemetry_source: String = SALE_TELEMETRY_SOURCES.get(item, "")
 	if not telemetry_source.is_empty():
 		record_playtest_coin_income(telemetry_source, total)
-	record_playtest_sale(item, quantity, unit_price, total)
+	record_playtest_sale(item, quantity, unit_price, total, merchant_id)
 	return total
+
+
+func get_unlock_display_name(unlock_type: String, product_id: int) -> String:
+	var source: Dictionary = _get_unlock_source(unlock_type)
+	if source.has(product_id) and source[product_id].has("name"):
+		return source[product_id]["name"]
+	return "%s %s" % [unlock_type, product_id]
+
+
+func get_unlock_texture(unlock_type: String, product_id: int) -> Texture2D:
+	var source: Dictionary = _get_unlock_source(unlock_type)
+	if source.has(product_id) and source[product_id].has("icon"):
+		return source[product_id]["icon"]
+	return null
+
+
+func get_unlock_coin_cost(unlock_type: String, product_id: int) -> int:
+	if unlock_type == "machine":
+		return int(MACHINE_BLUEPRINT_COIN_COSTS.get(product_id, 0))
+	if unlock_type == "style":
+		return int(STYLE_COIN_COSTS.get(product_id, 0))
+	return 0
+
+
+func get_unlock_resource_costs(unlock_type: String, product_id: int) -> Dictionary:
+	if unlock_type == "style":
+		return STYLE_RESOURCE_COSTS.get(product_id, {})
+	return {}
+
+
+func is_unlock_owned(unlock_type: String, product_id: int) -> bool:
+	if unlock_type == "machine":
+		return product_id in unlocked_machines
+	if unlock_type == "style":
+		return product_id in unlocked_styles
+	return false
+
+
+func try_buy_unlock(merchant_id: String, unlock_type: String, product_id: int) -> bool:
+	if not MERCHANT_CATALOGS.has(merchant_id):
+		push_warning("Unknown merchant id for unlock purchase: %s" % merchant_id)
+		return false
+	if unlock_type != "machine" and unlock_type != "style":
+		push_warning("Unknown unlock type: %s" % unlock_type)
+		return false
+	if is_unlock_owned(unlock_type, product_id):
+		return false
+	var coin_cost: int = get_unlock_coin_cost(unlock_type, product_id)
+	if coin_cost <= 0:
+		push_warning("Missing unlock coin cost: type=%s, id=%s" % [unlock_type, product_id])
+		return false
+	var resource_costs: Dictionary = get_unlock_resource_costs(unlock_type, product_id)
+	if get_coins() < coin_cost:
+		return false
+	for item in resource_costs:
+		var required: int = int(resource_costs[item])
+		if required <= 0:
+			push_warning("Unlock resource cost must be greater than zero: item=%s" % item)
+			return false
+		if int(ITEMS_AMOUNT.get(item, 0)) < required:
+			return false
+
+	if not spend_coins(coin_cost):
+		return false
+	for item in resource_costs:
+		ITEMS_AMOUNT[item] -= int(resource_costs[item])
+
+	if unlock_type == "machine":
+		unlocked_machines.append(product_id)
+	elif unlock_type == "style":
+		unlocked_styles.append(product_id)
+	else:
+		push_warning("Unknown unlock type after purchase validation: %s" % unlock_type)
+		return false
+
+	var telemetry_source: String = _get_unlock_telemetry_source(unlock_type, product_id)
+	if not telemetry_source.is_empty():
+		record_playtest_purchase(telemetry_source, "%s_%s" % [unlock_type, product_id], coin_cost, resource_costs)
+	return true
+
+
+func _get_unlock_source(unlock_type: String) -> Dictionary:
+	if unlock_type == "machine":
+		return MACHINE_UPGRADE_COST
+	if unlock_type == "style":
+		return STYLE_UPGRADES
+	return {}
+
+
+func _get_unlock_telemetry_source(unlock_type: String, product_id: int) -> String:
+	if unlock_type == "machine":
+		return MACHINE_BLUEPRINT_TELEMETRY_SOURCES.get(product_id, "")
+	if unlock_type == "style":
+		return STYLE_PURCHASE_TELEMETRY_SOURCES.get(product_id, "")
+	return ""
+
+
+func is_fish_species(item: Enum.Item) -> bool:
+	return FISH_SPECIES_ITEMS.has(item)
+
+
+func get_fish_rarity(item: Enum.Item) -> String:
+	if not FISH_RARITIES.has(item):
+		return ""
+	return String(FISH_RARITIES[item])
+
+
+func resolve_weighted_item(drop_table: Array, roll_value: int) -> int:
+	var seen_items: Dictionary = {}
+	var total_weight: int = 0
+	for entry in drop_table:
+		if not (entry is Dictionary):
+			push_warning("Weighted drop entry must be a Dictionary.")
+			return -1
+		var entry_data: Dictionary = entry
+		if not entry_data.has("item") or not entry_data.has("weight"):
+			push_warning("Weighted drop entry is missing item or weight.")
+			return -1
+		var item = entry_data["item"]
+		if not (item is int) or not ITEM_IDS.has(item):
+			push_warning("Weighted drop entry has an invalid item: %s" % item)
+			return -1
+		if seen_items.has(item):
+			push_warning("Weighted drop table contains duplicate item: %s" % item)
+			return -1
+		var weight = entry_data["weight"]
+		if not (weight is int):
+			push_warning("Weighted drop entry weight must be an integer: item=%s" % item)
+			return -1
+		var item_weight: int = int(weight)
+		if item_weight <= 0:
+			push_warning("Weighted drop entry weight must be greater than zero: item=%s" % item)
+			return -1
+
+		seen_items[item] = true
+		total_weight += item_weight
+
+	if total_weight <= 0:
+		push_warning("Weighted drop table has no positive total weight.")
+		return -1
+	if roll_value < 1 or roll_value > total_weight:
+		push_warning("Weighted roll out of range: roll=%s, total=%s" % [roll_value, total_weight])
+		return -1
+
+	var cumulative_weight: int = 0
+	for entry in drop_table:
+		var entry_data: Dictionary = entry
+		cumulative_weight += int(entry_data["weight"])
+		if roll_value <= cumulative_weight:
+			return int(entry_data["item"])
+
+	push_warning("Weighted roll failed to resolve despite valid range: roll=%s, total=%s" % [roll_value, total_weight])
+	return -1
+
+
+func roll_weighted_item(drop_table: Array) -> int:
+	var total_weight: int = _get_weighted_drop_table_total(drop_table)
+	if total_weight <= 0:
+		return -1
+	return resolve_weighted_item(drop_table, randi_range(1, total_weight))
+
+
+func roll_manual_fish_species() -> int:
+	var fish_item: int = roll_weighted_item(MANUAL_FISHING_DROP_TABLE)
+	if is_fish_species(fish_item):
+		return fish_item
+
+	push_warning("Manual fishing roll failed; using Gray Carp fallback.")
+	return Enum.Item.GRAY_CARP
+
+
+func roll_automatic_fish_species() -> int:
+	var fish_item: int = roll_weighted_item(AUTOMATIC_FISHER_DROP_TABLE)
+	if fish_item == Enum.Item.GRAY_CARP or fish_item == Enum.Item.SILVER_PERCH:
+		return fish_item
+
+	push_warning("Automatic Fisher drop table failed; using Gray Carp fallback.")
+	return Enum.Item.GRAY_CARP
+
+
+func get_visible_inventory_items() -> Array:
+	return VISIBLE_INVENTORY_ITEMS.duplicate()
+
+
+func get_category_items(category_id: StringName) -> Array:
+	if not ITEM_CATEGORIES.has(category_id):
+		return []
+	return (ITEM_CATEGORIES[category_id] as Array).duplicate()
+
+
+func get_category_display_name(category_id: StringName) -> String:
+	if CATEGORY_DISPLAY_NAMES.has(category_id):
+		return String(CATEGORY_DISPLAY_NAMES[category_id])
+	return String(category_id).capitalize()
+
+
+func get_category_icon_item(category_id: StringName) -> int:
+	if CATEGORY_ICON_ITEMS.has(category_id):
+		return int(CATEGORY_ICON_ITEMS[category_id])
+	return -1
+
+
+func get_total_category_amount(category_id: StringName) -> int:
+	var total_amount: int = 0
+	for item in get_category_items(category_id):
+		total_amount += int(ITEMS_AMOUNT.get(item, 0))
+	return total_amount
+
+
+func can_afford_category_cost(category_id: StringName, required_amount: int) -> bool:
+	if required_amount <= 0:
+		return false
+	if get_category_items(category_id).is_empty():
+		return false
+	return get_total_category_amount(category_id) >= required_amount
+
+
+func build_category_consumption_plan(category_id: StringName, required_amount: int) -> Dictionary:
+	var result: Dictionary = {
+		"success": false,
+		"items": {}
+	}
+	if not can_afford_category_cost(category_id, required_amount):
+		return result
+
+	var sorted_items: Array = get_category_items(category_id)
+	sorted_items.sort_custom(func(a, b) -> bool:
+		var price_a: int = get_sell_price(a)
+		var price_b: int = get_sell_price(b)
+		if price_a != price_b:
+			return price_a < price_b
+		var owned_a: int = int(ITEMS_AMOUNT.get(a, 0))
+		var owned_b: int = int(ITEMS_AMOUNT.get(b, 0))
+		if owned_a != owned_b:
+			return owned_a > owned_b
+		return int(a) < int(b)
+	)
+
+	var remaining: int = required_amount
+	var plan_items: Dictionary = {}
+	for item in sorted_items:
+		if remaining <= 0:
+			break
+		var owned: int = int(ITEMS_AMOUNT.get(item, 0))
+		if owned <= 0:
+			continue
+		var consumed: int = min(owned, remaining)
+		plan_items[item] = consumed
+		remaining -= consumed
+
+	if remaining != 0:
+		return result
+
+	result["success"] = true
+	result["items"] = plan_items
+	return result
+
+
+func build_machine_placement_cost_plan(machine_id: int) -> Dictionary:
+	var result: Dictionary = {
+		"success": false,
+		"item_costs": {},
+		"category_costs": {},
+		"category_consumption": {}
+	}
+	if not MACHINE_PLACEMENT_COSTS.has(machine_id):
+		push_warning("Missing machine placement cost for machine id: %s" % machine_id)
+		return result
+
+	var item_costs: Dictionary = {}
+	for item in MACHINE_PLACEMENT_COSTS[machine_id]:
+		var required_amount: int = int(MACHINE_PLACEMENT_COSTS[machine_id][item])
+		if required_amount <= 0:
+			push_warning("Machine placement material cost must be greater than zero: item=%s, cost=%s" %
+				[item, required_amount])
+			return result
+		if int(ITEMS_AMOUNT.get(item, 0)) < required_amount:
+			return result
+		item_costs[item] = required_amount
+
+	var category_costs: Dictionary = {}
+	var category_consumption: Dictionary = {}
+	var machine_category_costs: Dictionary = MACHINE_CATEGORY_COSTS.get(machine_id, {})
+	for category_id in machine_category_costs:
+		var category_key: StringName = category_id
+		var required_category_amount: int = int(machine_category_costs[category_id])
+		if required_category_amount <= 0:
+			push_warning("Machine category cost must be greater than zero: category=%s, cost=%s" %
+				[category_key, required_category_amount])
+			return result
+		var category_plan: Dictionary = build_category_consumption_plan(category_key, required_category_amount)
+		if not bool(category_plan.get("success", false)):
+			return result
+		category_costs[category_key] = required_category_amount
+		category_consumption[category_key] = category_plan["items"]
+
+	result["success"] = true
+	result["item_costs"] = item_costs
+	result["category_costs"] = category_costs
+	result["category_consumption"] = category_consumption
+	return result
+
+
+func can_afford_machine_placement_costs(machine_id: int) -> bool:
+	return bool(build_machine_placement_cost_plan(machine_id).get("success", false))
+
+
+func consume_machine_placement_cost_plan(cost_plan: Dictionary) -> bool:
+	if not bool(cost_plan.get("success", false)):
+		return false
+
+	var item_costs: Dictionary = cost_plan.get("item_costs", {})
+	var category_costs: Dictionary = cost_plan.get("category_costs", {})
+	var category_consumption: Dictionary = cost_plan.get("category_consumption", {})
+
+	for item in item_costs:
+		var required_amount: int = int(item_costs[item])
+		if required_amount <= 0 or int(ITEMS_AMOUNT.get(item, 0)) < required_amount:
+			return false
+
+	for category_id in category_costs:
+		var category_key: StringName = category_id
+		var required_category_amount: int = int(category_costs[category_id])
+		if required_category_amount <= 0:
+			return false
+		if not category_consumption.has(category_key):
+			return false
+		if not can_afford_category_cost(category_key, required_category_amount):
+			return false
+		var category_items: Array = get_category_items(category_key)
+		var planned_items: Dictionary = category_consumption[category_key]
+		var planned_total: int = 0
+		for item in planned_items:
+			var planned_amount: int = int(planned_items[item])
+			if planned_amount <= 0:
+				return false
+			if not category_items.has(item):
+				return false
+			if int(ITEMS_AMOUNT.get(item, 0)) < planned_amount:
+				return false
+			planned_total += planned_amount
+		if planned_total != required_category_amount:
+			return false
+
+	for item in item_costs:
+		ITEMS_AMOUNT[item] = int(ITEMS_AMOUNT.get(item, 0)) - int(item_costs[item])
+	for category_id in category_consumption:
+		var planned_items: Dictionary = category_consumption[category_id]
+		for item in planned_items:
+			ITEMS_AMOUNT[item] = int(ITEMS_AMOUNT.get(item, 0)) - int(planned_items[item])
+	return true
 
 
 func get_item_texture(item: Enum.Item) -> Texture2D:
@@ -502,6 +1098,9 @@ func get_item_texture(item: Enum.Item) -> Texture2D:
 		coin_texture.atlas = COIN_ICON_SHEET
 		coin_texture.region = Rect2(96, 0, 16, 16)
 		return coin_texture
+
+	if FISH_ITEM_TEXTURE_REGIONS.has(item):
+		return _create_atlas_texture(RED_SNAPPER_TEXTURE_SHEET, FISH_ITEM_TEXTURE_REGIONS[item])
 
 	if SEED_ITEM_TEXTURE_REGIONS.has(item):
 		return _create_atlas_texture(SPROUT_LANDS_EMOJI_SHEET, SEED_ITEM_TEXTURE_REGIONS[item])
@@ -626,6 +1225,14 @@ func start_playtest_session() -> void:
 		"fishing_failures": 0,
 		"fishing_total_duration_seconds": 0.0,
 		"fishing_average_duration_seconds": 0.0,
+		"fish_catches_by_species": {
+			"gray_carp": 0,
+			"silver_perch": 0,
+			"golden_koi": 0,
+			"red_snapper": 0
+		},
+		"fish_catch_events": [],
+		"trade_buy_events": [],
 		"purchase_events": [],
 		"machine_placement_events": [],
 		"sale_events": [],
@@ -697,13 +1304,56 @@ func record_playtest_coin_income(source: String, amount: int) -> void:
 	save_playtest_log("coin_income_%s" % source)
 
 
-func record_playtest_sale(item: Enum.Item, quantity: int, unit_price: int, coin_earned: int) -> void:
+func record_playtest_coin_spending(source: String, amount: int) -> void:
+	if not _is_playtest_session_ready():
+		return
+	if amount <= 0:
+		push_warning("Playtest coin spending amount must be greater than zero: source=%s, amount=%s" % [source, amount])
+		return
+	if source.strip_edges().is_empty():
+		push_warning("Playtest coin spending source is empty.")
+		return
+
+	var spending_by_source: Dictionary = playtest_metrics["coin_spending_by_source"]
+	spending_by_source[source] = int(spending_by_source.get(source, 0)) + amount
+	playtest_metrics["coin_spending_by_source"] = spending_by_source
+	playtest_metrics["total_coin_spending"] = int(playtest_metrics["total_coin_spending"]) + amount
+	playtest_metrics["current_inventory"] = get_playtest_inventory_snapshot()
+	save_playtest_log("coin_spending_%s" % source)
+
+
+func record_playtest_trade_buy(merchant_id: String, item: Enum.Item, quantity: int, unit_price: int, coin_spent: int) -> void:
+	if not _is_playtest_session_ready():
+		return
+	if not playtest_metrics.has("trade_buy_events"):
+		playtest_metrics["trade_buy_events"] = []
+
+	var event: Dictionary = {
+		"merchant_id": merchant_id,
+		"day_id": CURRENT_DAY_ID,
+		"elapsed_seconds": _get_playtest_elapsed_seconds(),
+		"item_id": String(get_item_id(item)),
+		"quantity": quantity,
+		"unit_price": unit_price,
+		"coin_spent": coin_spent,
+		"coin_balance_after": get_coins(),
+		"inventory_amount_after": int(ITEMS_AMOUNT.get(item, 0))
+	}
+	var events: Array = playtest_metrics["trade_buy_events"]
+	events.append(event)
+	playtest_metrics["trade_buy_events"] = events
+	playtest_metrics["current_inventory"] = get_playtest_inventory_snapshot()
+	save_playtest_log("buy_%s" % String(get_item_id(item)).to_lower())
+
+
+func record_playtest_sale(item: Enum.Item, quantity: int, unit_price: int, coin_earned: int, merchant_id: String = "courier") -> void:
 	if not _is_playtest_session_ready():
 		return
 	if not playtest_metrics.has("sale_events"):
 		playtest_metrics["sale_events"] = []
 
 	var event: Dictionary = {
+		"merchant_id": merchant_id,
 		"day_id": CURRENT_DAY_ID,
 		"elapsed_seconds": _get_playtest_elapsed_seconds(),
 		"item_id": String(get_item_id(item)),
@@ -718,6 +1368,51 @@ func record_playtest_sale(item: Enum.Item, quantity: int, unit_price: int, coin_
 	playtest_metrics["sale_events"] = events
 	playtest_metrics["current_inventory"] = get_playtest_inventory_snapshot()
 	save_playtest_log("sale_%s" % String(get_item_id(item)).to_lower())
+
+
+func record_fish_catch(item: int, source: String) -> void:
+	if not is_fish_species(item):
+		push_warning("Fish catch telemetry ignored for non-species item: %s" % item)
+		return
+	if source != "manual" and source != "automatic_fisher":
+		push_warning("Fish catch telemetry ignored for invalid source: %s" % source)
+		return
+	if not ITEM_TELEMETRY_KEYS.has(item):
+		push_warning("Fish catch telemetry missing item key: %s" % item)
+		return
+	var rarity: String = get_fish_rarity(item)
+	if rarity.is_empty():
+		push_warning("Fish catch telemetry missing rarity: %s" % item)
+		return
+	if not _is_playtest_session_ready():
+		return
+
+	if not playtest_metrics.has("fish_catches_by_species") or not (playtest_metrics["fish_catches_by_species"] is Dictionary):
+		playtest_metrics["fish_catches_by_species"] = _create_empty_fish_catch_totals()
+	if not playtest_metrics.has("fish_catch_events") or not (playtest_metrics["fish_catch_events"] is Array):
+		playtest_metrics["fish_catch_events"] = []
+
+	var species_key: String = String(ITEM_TELEMETRY_KEYS[item])
+	var catches_by_species: Dictionary = playtest_metrics["fish_catches_by_species"]
+	for fish_item in FISH_SPECIES_ITEMS:
+		var fish_key: String = String(ITEM_TELEMETRY_KEYS.get(fish_item, ""))
+		if not fish_key.is_empty() and not catches_by_species.has(fish_key):
+			catches_by_species[fish_key] = 0
+	catches_by_species[species_key] = int(catches_by_species.get(species_key, 0)) + 1
+	playtest_metrics["fish_catches_by_species"] = catches_by_species
+
+	var event: Dictionary = {
+		"day_id": CURRENT_DAY_ID,
+		"elapsed_seconds": _get_playtest_elapsed_seconds(),
+		"source": source,
+		"item_id": String(get_item_id(item)),
+		"rarity": rarity,
+		"inventory_amount_after": int(ITEMS_AMOUNT.get(item, 0))
+	}
+	var events: Array = playtest_metrics["fish_catch_events"]
+	events.append(event)
+	playtest_metrics["fish_catch_events"] = events
+	playtest_metrics["current_inventory"] = get_playtest_inventory_snapshot()
 
 
 func record_manual_fishing_started() -> void:
@@ -791,7 +1486,14 @@ func record_playtest_purchase(source: String, product_id, coin_cost: int, resour
 	save_playtest_log("purchase_%s" % source)
 
 
-func record_playtest_machine_placement(source: String, machine_id, material_costs: Dictionary, grid_coord: Vector2i) -> void:
+func record_playtest_machine_placement(
+	source: String,
+	machine_id,
+	material_costs: Dictionary,
+	grid_coord: Vector2i,
+	category_costs: Dictionary = {},
+	category_materials_consumed: Dictionary = {}
+) -> void:
 	if not _is_playtest_session_ready():
 		return
 	if source.strip_edges().is_empty():
@@ -804,8 +1506,15 @@ func record_playtest_machine_placement(source: String, machine_id, material_cost
 		"day_id": CURRENT_DAY_ID,
 		"elapsed_seconds": _get_playtest_elapsed_seconds(),
 		"material_costs": _serialize_item_costs(material_costs),
+		"resource_costs": _serialize_item_costs(material_costs),
+		"category_costs": _serialize_category_costs(category_costs),
+		"category_materials_consumed": _serialize_category_materials_consumed(category_materials_consumed),
 		"inventory_after": get_playtest_inventory_snapshot(),
 		"grid_coord": {
+			"x": grid_coord.x,
+			"y": grid_coord.y
+		},
+		"position": {
 			"x": grid_coord.x,
 			"y": grid_coord.y
 		}
@@ -866,6 +1575,50 @@ func _is_playtest_session_ready() -> bool:
 	return not playtest_metrics.is_empty()
 
 
+func _get_weighted_drop_table_total(drop_table: Array) -> int:
+	var seen_items: Dictionary = {}
+	var total_weight: int = 0
+	for entry in drop_table:
+		if not (entry is Dictionary):
+			push_warning("Weighted drop entry must be a Dictionary.")
+			return 0
+		var entry_data: Dictionary = entry
+		if not entry_data.has("item") or not entry_data.has("weight"):
+			push_warning("Weighted drop entry is missing item or weight.")
+			return 0
+		var item = entry_data["item"]
+		if not (item is int) or not ITEM_IDS.has(item):
+			push_warning("Weighted drop entry has an invalid item: %s" % item)
+			return 0
+		if seen_items.has(item):
+			push_warning("Weighted drop table contains duplicate item: %s" % item)
+			return 0
+		var weight = entry_data["weight"]
+		if not (weight is int):
+			push_warning("Weighted drop entry weight must be an integer: item=%s" % item)
+			return 0
+		var item_weight: int = int(weight)
+		if item_weight <= 0:
+			push_warning("Weighted drop entry weight must be greater than zero: item=%s" % item)
+			return 0
+
+		seen_items[item] = true
+		total_weight += item_weight
+
+	if total_weight <= 0:
+		push_warning("Weighted drop table has no positive total weight.")
+	return total_weight
+
+
+func _create_empty_fish_catch_totals() -> Dictionary:
+	var totals: Dictionary = {}
+	for fish_item in FISH_SPECIES_ITEMS:
+		var species_key: String = String(ITEM_TELEMETRY_KEYS.get(fish_item, ""))
+		if not species_key.is_empty():
+			totals[species_key] = 0
+	return totals
+
+
 func _get_playtest_elapsed_seconds() -> float:
 	if playtest_metrics.is_empty() or int(playtest_metrics.get("session_started_msec", 0)) <= 0:
 		return 0.0
@@ -876,6 +1629,21 @@ func _serialize_item_costs(costs: Dictionary) -> Dictionary:
 	var serialized: Dictionary = {}
 	for item in costs:
 		serialized[_get_item_telemetry_key(item)] = int(costs[item])
+	return serialized
+
+
+func _serialize_category_costs(costs: Dictionary) -> Dictionary:
+	var serialized: Dictionary = {}
+	for category_id in costs:
+		serialized[String(category_id)] = int(costs[category_id])
+	return serialized
+
+
+func _serialize_category_materials_consumed(category_materials: Dictionary) -> Dictionary:
+	var serialized: Dictionary = {}
+	for category_id in category_materials:
+		var item_costs: Dictionary = category_materials[category_id]
+		serialized[String(category_id)] = _serialize_item_costs(item_costs)
 	return serialized
 
 

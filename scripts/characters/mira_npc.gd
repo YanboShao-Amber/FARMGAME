@@ -259,6 +259,9 @@ func _finish_dialogue() -> void:
 	if is_instance_valid(player) and player.has_method("end_dialogue_lock"):
 		player.end_dialogue_lock(self)
 
+	# Phase H1: fixed NPCs always settle facing Down when an interaction ends.
+	play_idle(Vector2.DOWN)
+
 	dialogue_index = 0
 	active_dialogue_sequence = null
 	_dialogue_completed_naturally = false

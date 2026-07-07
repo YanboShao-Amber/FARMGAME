@@ -1,27 +1,42 @@
+class_name MerchantTradeUI
 extends CanvasLayer
-## Sell panel opened by the Courier. Lists every whitelisted sellable item as a row
-## (icon | name | owned | unit price + coin). Clicking a row's "Sell" button sells one;
-## "Sell All" sells the whole stack. All coin/inventory changes go through the single
-## atomic Data.try_sell_item(); this UI never mutates ITEMS_AMOUNT or coins directly.
-##
-## Modal: own CanvasLayer (layer 21, above the quest tracker) with a full-screen Dim
-## that stops mouse input, and it swallows the quest-panel toggle key while open.
 
 signal closed
 
 const UI_FONT: Font = preload("res://graphics/fonts/HomeVideo-Regular.ttf")
 const DARK_TEXT := Color(0.23, 0.13, 0.08, 1)
-const QUEST_TOGGLE_KEYCODE: int = KEY_J  # mirror QuestTracker.TOGGLE_KEY to block conflicts
+const MUTED_TEXT := Color(0.35, 0.21, 0.09, 1)
+const QUEST_TOGGLE_KEYCODE: int = KEY_J
+
+enum TradeTab {BUY, SELL}
+
+const TAB_BUY := "buy"
+const TAB_SELL := "sell"
 
 @onready var root: Control = $Root
-@onready var rows_box: VBoxContainer = $Root/Center/Panel/ContentMargin/Column/RowsBox
+@onready var column: VBoxContainer = $Root/Center/Panel/ContentMargin/Column
+@onready var title_label: Label = $Root/Center/Panel/ContentMargin/Column/Title
+@onready var subtitle_label: Label = $Root/Center/Panel/ContentMargin/Column/Subtitle
+@onready var rows_scroll: ScrollContainer = $Root/Center/Panel/ContentMargin/Column/RowsScroll
+@onready var rows_box: VBoxContainer = $Root/Center/Panel/ContentMargin/Column/RowsScroll/RowsBox
 @onready var close_button: TextureButton = $Root/Center/Panel/CloseButton
 
-# item(Enum.Item) -> {"owned": Label, "sell_one": Button, "sell_all": Button}
-var _row_widgets: Dictionary = {}
+var _merchant_id: String = "courier"
+var _current_tab: int = TradeTab.BUY
+var _tab_bar: HBoxContainer
+var _buy_tab_button: Button
+var _sell_tab_button: Button
+var _status_label: Label
+var _coin_label: Label
+var _tab_scroll_positions: Dictionary = {
+	TAB_BUY: 0,
+	TAB_SELL: 0
+}
+var _visited_tabs: Dictionary = {}
 
 
 func _ready() -> void:
+	_ensure_runtime_controls()
 	if not close_button.pressed.is_connected(_on_close_pressed):
 		close_button.pressed.connect(_on_close_pressed)
 	close_button.focus_mode = Control.FOCUS_ALL
@@ -31,18 +46,40 @@ func is_open() -> bool:
 	return root.visible
 
 
-func reveal() -> void:
-	_build_rows()
+func reveal(merchant_id: String = "courier", initial_tab: String = TAB_BUY) -> void:
+	open_for_merchant(merchant_id, initial_tab)
+
+
+func open_for_merchant(merchant_id: String = "courier", initial_tab: String = TAB_BUY) -> void:
+	if not Data.MERCHANT_CATALOGS.has(merchant_id):
+		push_warning("Unknown merchant id: %s" % merchant_id)
+		merchant_id = "courier"
+	_merchant_id = merchant_id
+	_current_tab = _tab_from_name(initial_tab)
+	_tab_scroll_positions = {
+		TAB_BUY: 0,
+		TAB_SELL: 0
+	}
+	_visited_tabs = {_tab_name(_current_tab): true}
 	root.show()
-	_refresh()
+	_rebuild(false)
 	await get_tree().process_frame
 	_grab_default_focus()
 
 
+func request_close() -> void:
+	_on_close_pressed()
+
+
+func force_close() -> void:
+	root.hide()
+	remove_items()
+
+
 func remove_items() -> void:
 	for child in rows_box.get_children():
+		rows_box.remove_child(child)
 		child.queue_free()
-	_row_widgets.clear()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -52,34 +89,106 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		_on_close_pressed()
 		return
-	# Prevent other HUD panels (e.g. the quest tracker) from toggling while the
-	# sell panel is the active modal.
 	if event is InputEventKey and (event as InputEventKey).physical_keycode == QUEST_TOGGLE_KEYCODE:
 		get_viewport().set_input_as_handled()
 
 
-# =========================================================
-# Row construction
-# =========================================================
-func _build_rows() -> void:
+func _ensure_runtime_controls() -> void:
+	_tab_bar = HBoxContainer.new()
+	_tab_bar.add_theme_constant_override("separation", 8)
+	column.add_child(_tab_bar)
+	column.move_child(_tab_bar, 2)
+
+	_buy_tab_button = _make_action_button("Buy")
+	_buy_tab_button.pressed.connect(func() -> void: _switch_tab(TradeTab.BUY))
+	_tab_bar.add_child(_buy_tab_button)
+
+	_sell_tab_button = _make_action_button("Sell")
+	_sell_tab_button.pressed.connect(func() -> void: _switch_tab(TradeTab.SELL))
+	_tab_bar.add_child(_sell_tab_button)
+
+	_status_label = _make_label("", 18, MUTED_TEXT)
+	column.add_child(_status_label)
+	column.move_child(_status_label, 3)
+
+	_coin_label = _make_label("", 20, DARK_TEXT)
+	column.add_child(_coin_label)
+
+
+func _switch_tab(tab: int) -> void:
+	if _current_tab == tab:
+		return
+	_tab_scroll_positions[_tab_name(_current_tab)] = rows_scroll.scroll_vertical
+	_current_tab = tab
+	var tab_name := _tab_name(_current_tab)
+	var has_visited: bool = bool(_visited_tabs.get(tab_name, false))
+	_visited_tabs[tab_name] = true
+	_status_label.text = ""
+	_rebuild(false)
+	_restore_view_state({
+		"scroll": int(_tab_scroll_positions.get(tab_name, 0)) if has_visited else 0,
+		"focus_item": -1,
+		"focus_action": "",
+		"focus_row": 0
+	})
+
+
+func _rebuild(preserve_state: bool = true) -> void:
+	var view_state: Dictionary = _capture_view_state() if preserve_state else {
+		"scroll": int(_tab_scroll_positions.get(_tab_name(_current_tab), 0)),
+		"focus_item": -1,
+		"focus_action": "",
+		"focus_row": 0
+	}
+	_tab_scroll_positions[_tab_name(_current_tab)] = int(view_state.get("scroll", 0))
 	remove_items()
-	for item in Data.SELLABLE_ITEMS:
-		_row_widgets[item] = _make_row(item)
+	var catalog: Dictionary = Data.MERCHANT_CATALOGS[_merchant_id]
+	var merchant_name: String = catalog.get("name", _merchant_id)
+	title_label.text = "%s Trade" % merchant_name
+	subtitle_label.text = "Buy and sell goods"
+	_coin_label.text = "Coins: %d" % Data.get_coins()
+	_buy_tab_button.disabled = _current_tab == TradeTab.BUY
+	_sell_tab_button.disabled = _current_tab == TradeTab.SELL
+
+	var row_count: int = 0
+	if _current_tab == TradeTab.BUY:
+		for item in catalog.get("items", []):
+			_make_item_row(item, true)
+			row_count += 1
+		for unlock in catalog.get("unlocks", []):
+			_make_unlock_row(unlock)
+			row_count += 1
+	else:
+		for item in Data.TRADEABLE_ITEMS:
+			_make_item_row(item, false)
+			row_count += 1
+
+	if row_count == 0:
+		rows_box.add_child(_make_label("No goods available.", 22, DARK_TEXT))
+	_restore_view_state(view_state)
 
 
-func _make_row(item: int) -> Dictionary:
+func _make_item_row(item: int, is_buy: bool) -> void:
 	var row := HBoxContainer.new()
 	row.custom_minimum_size = Vector2(0, 44)
 	row.add_theme_constant_override("separation", 8)
 	rows_box.add_child(row)
 
-	# The row body is a "Sell one" button holding the icon/name/owned/price.
-	var sell_one := Button.new()
-	sell_one.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	sell_one.focus_mode = Control.FOCUS_ALL
-	_style_button(sell_one)
-	sell_one.pressed.connect(func() -> void: _on_sell_one(item))
-	row.add_child(sell_one)
+	var unit_price: int = Data.get_buy_price(item) if is_buy else Data.get_sell_price(item)
+	var owned: int = int(Data.ITEMS_AMOUNT.get(item, 0))
+	var can_transact: bool = false
+	if unit_price > 0:
+		if is_buy:
+			can_transact = Data.get_coins() >= unit_price
+		else:
+			can_transact = owned > 0
+
+	var primary := _make_action_button("")
+	_tag_focus_target(primary, item, "primary", rows_box.get_child_count() - 1)
+	primary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	primary.disabled = not can_transact
+	primary.pressed.connect(func() -> void: _trade_item(item, 1, is_buy))
+	row.add_child(primary)
 
 	var content := HBoxContainer.new()
 	content.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -87,7 +196,7 @@ func _make_row(item: int) -> Dictionary:
 	content.offset_right = -10.0
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_theme_constant_override("separation", 10)
-	sell_one.add_child(content)
+	primary.add_child(content)
 
 	var icon := TextureRect.new()
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -98,18 +207,17 @@ func _make_row(item: int) -> Dictionary:
 	icon.texture = Data.get_item_texture(item)
 	content.add_child(icon)
 
-	var name_label := _make_label(Data.get_item_display_name(Data.get_item_id(item)), 22)
+	var name_label := _make_label(Data.get_item_display_name(Data.get_item_id(item)), 21, DARK_TEXT)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.custom_minimum_size = Vector2(190, 0)
 	content.add_child(name_label)
 
-	var owned_label := _make_label("", 22)
-	owned_label.custom_minimum_size = Vector2(70, 0)
-	owned_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var owned_label := _make_label("Owned: %d" % owned, 20, DARK_TEXT)
+	owned_label.custom_minimum_size = Vector2(125, 0)
 	content.add_child(owned_label)
 
-	var price_label := _make_label(str(Data.get_sell_price(item)), 24)
-	price_label.custom_minimum_size = Vector2(56, 0)
-	price_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var price_label := _make_label(("%s: %d" % ["Buy" if is_buy else "Sell", unit_price]), 20, DARK_TEXT)
+	price_label.custom_minimum_size = Vector2(105, 0)
 	content.add_child(price_label)
 
 	var coin_icon := TextureRect.new()
@@ -121,79 +229,246 @@ func _make_row(item: int) -> Dictionary:
 	coin_icon.texture = Data.get_item_texture(Enum.Item.COIN)
 	content.add_child(coin_icon)
 
-	var sell_all := Button.new()
-	sell_all.custom_minimum_size = Vector2(96, 0)
-	sell_all.focus_mode = Control.FOCUS_ALL
-	sell_all.text = "全卖 All"
-	_style_button(sell_all)
-	sell_all.pressed.connect(func() -> void: _on_sell_all(item))
-	row.add_child(sell_all)
-
-	return {"owned": owned_label, "sell_one": sell_one, "sell_all": sell_all}
-
-
-# =========================================================
-# Transactions (always via Data.try_sell_item)
-# =========================================================
-func _on_sell_one(item: int) -> void:
-	Data.try_sell_item(item, 1)
-	_refresh()
+	var secondary := _make_action_button("Max" if is_buy else "All")
+	_tag_focus_target(secondary, item, "secondary", rows_box.get_child_count() - 1)
+	secondary.custom_minimum_size = Vector2(96, 0)
+	if is_buy:
+		secondary.disabled = _max_buy_quantity(item) <= 0
+	else:
+		secondary.disabled = owned <= 0
+	secondary.pressed.connect(func() -> void:
+		var amount: int = _max_buy_quantity(item) if is_buy else int(Data.ITEMS_AMOUNT.get(item, 0))
+		_trade_item(item, amount, is_buy)
+	)
+	row.add_child(secondary)
 
 
-func _on_sell_all(item: int) -> void:
-	var owned: int = int(Data.ITEMS_AMOUNT.get(item, 0))
-	if owned <= 0:
+func _make_unlock_row(unlock: Dictionary) -> void:
+	var unlock_type: String = unlock.get("type", "")
+	var product_id: int = int(unlock.get("id", -1))
+	var row := HBoxContainer.new()
+	row.custom_minimum_size = Vector2(0, 52)
+	row.add_theme_constant_override("separation", 8)
+	rows_box.add_child(row)
+
+	var owned: bool = Data.is_unlock_owned(unlock_type, product_id)
+	var can_afford: bool = _can_afford_unlock(unlock_type, product_id)
+	var buy_button := _make_action_button("")
+	_tag_focus_target(buy_button, product_id, "unlock", rows_box.get_child_count() - 1)
+	buy_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	buy_button.disabled = owned or not can_afford
+	buy_button.pressed.connect(func() -> void: _buy_unlock(unlock_type, product_id))
+	row.add_child(buy_button)
+
+	var content := HBoxContainer.new()
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.offset_left = 10.0
+	content.offset_right = -10.0
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_theme_constant_override("separation", 10)
+	buy_button.add_child(content)
+
+	var icon := TextureRect.new()
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.custom_minimum_size = Vector2(32, 32)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icon.texture = Data.get_unlock_texture(unlock_type, product_id)
+	content.add_child(icon)
+
+	var name_label := _make_label(Data.get_unlock_display_name(unlock_type, product_id), 22, DARK_TEXT)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(name_label)
+
+	var cost_label := _make_label(_format_unlock_cost(unlock_type, product_id), 18, DARK_TEXT)
+	cost_label.custom_minimum_size = Vector2(230, 0)
+	content.add_child(cost_label)
+
+
+func _trade_item(item: int, quantity: int, is_buy: bool) -> void:
+	if quantity <= 0:
 		return
-	Data.try_sell_item(item, owned)
-	_refresh()
+	if is_buy:
+		var bought: int = Data.try_buy_item(item, quantity, _merchant_id)
+		if bought > 0:
+			_status_label.text = "Bought %d %s." % [bought, Data.get_item_display_name(Data.get_item_id(item))]
+		else:
+			_status_label.text = "Cannot buy."
+	else:
+		var earned: int = Data.try_sell_item(item, quantity, _merchant_id)
+		if earned > 0:
+			_status_label.text = "Sold for %d coins." % earned
+		else:
+			_status_label.text = "Cannot sell."
+	_rebuild()
 
 
-func _refresh() -> void:
-	for item in _row_widgets:
-		var widgets: Dictionary = _row_widgets[item]
-		var owned: int = int(Data.ITEMS_AMOUNT.get(item, 0))
-		(widgets["owned"] as Label).text = "x%d" % owned
-		(widgets["sell_one"] as Button).disabled = owned <= 0
-		(widgets["sell_all"] as Button).disabled = owned <= 0
-	# If focus landed on a now-disabled button, move it somewhere valid.
-	var focused := get_viewport().gui_get_focus_owner()
-	if focused == null or (focused is Button and (focused as Button).disabled):
-		_grab_default_focus()
+func _buy_unlock(unlock_type: String, product_id: int) -> void:
+	var bought: bool = Data.try_buy_unlock(_merchant_id, unlock_type, product_id)
+	_status_label.text = "Purchased." if bought else "Cannot purchase."
+	_rebuild()
+
+
+func _max_buy_quantity(item: int) -> int:
+	var unit_price: int = Data.get_buy_price(item)
+	if unit_price <= 0:
+		return 0
+	return int(floor(float(Data.get_coins()) / float(unit_price)))
+
+
+func _can_afford_unlock(unlock_type: String, product_id: int) -> bool:
+	var coin_cost: int = Data.get_unlock_coin_cost(unlock_type, product_id)
+	if coin_cost <= 0 or Data.get_coins() < coin_cost:
+		return false
+	var resource_costs: Dictionary = Data.get_unlock_resource_costs(unlock_type, product_id)
+	for item in resource_costs:
+		if int(Data.ITEMS_AMOUNT.get(item, 0)) < int(resource_costs[item]):
+			return false
+	return true
+
+
+func _format_unlock_cost(unlock_type: String, product_id: int) -> String:
+	var parts: Array[String] = ["%d Coin" % Data.get_unlock_coin_cost(unlock_type, product_id)]
+	var resources: Dictionary = Data.get_unlock_resource_costs(unlock_type, product_id)
+	for item in resources:
+		parts.append("%d %s" % [int(resources[item]), Data.get_item_display_name(Data.get_item_id(item))])
+	return " + ".join(PackedStringArray(parts))
 
 
 func _grab_default_focus() -> void:
-	for item in Data.SELLABLE_ITEMS:
-		if _row_widgets.has(item):
-			var btn := _row_widgets[item]["sell_one"] as Button
-			if not btn.disabled:
-				btn.grab_focus()
+	for row in rows_box.get_children():
+		if row is HBoxContainer and row.get_child_count() > 0:
+			var button := row.get_child(0) as Button
+			if button != null and not button.disabled:
+				button.grab_focus()
 				return
-	close_button.grab_focus()
+	if not _buy_tab_button.disabled:
+		_buy_tab_button.grab_focus()
+	elif not _sell_tab_button.disabled:
+		_sell_tab_button.grab_focus()
+	else:
+		close_button.grab_focus()
+
+
+func _capture_view_state() -> Dictionary:
+	var focus_owner := get_viewport().gui_get_focus_owner()
+	var focus_item: int = -1
+	var focus_action: String = ""
+	var focus_row: int = 0
+	if focus_owner != null:
+		focus_item = int(focus_owner.get_meta("trade_item", -1))
+		focus_action = String(focus_owner.get_meta("trade_action", ""))
+		focus_row = int(focus_owner.get_meta("trade_row", 0))
+	return {
+		"scroll": rows_scroll.scroll_vertical,
+		"focus_item": focus_item,
+		"focus_action": focus_action,
+		"focus_row": focus_row
+	}
+
+
+func _restore_view_state(view_state: Dictionary) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var scroll_bar := rows_scroll.get_v_scroll_bar()
+	var max_scroll: int = int(maxf(0.0, scroll_bar.max_value - scroll_bar.page))
+	rows_scroll.scroll_vertical = clampi(int(view_state.get("scroll", 0)), 0, max_scroll)
+	if not _restore_focus(view_state):
+		_grab_nearby_focus(int(view_state.get("focus_row", 0)))
+
+
+func _restore_focus(view_state: Dictionary) -> bool:
+	var focus_item: int = int(view_state.get("focus_item", -1))
+	var focus_action: String = String(view_state.get("focus_action", ""))
+	if focus_item == -1:
+		return false
+
+	var same_item_fallback: Button = null
+	for row in rows_box.get_children():
+		for child in row.get_children():
+			var button := child as Button
+			if button == null or button.disabled:
+				continue
+			if int(button.get_meta("trade_item", -1)) != focus_item:
+				continue
+			if String(button.get_meta("trade_action", "")) == focus_action:
+				button.grab_focus()
+				return true
+			if same_item_fallback == null:
+				same_item_fallback = button
+	if same_item_fallback != null:
+		same_item_fallback.grab_focus()
+		return true
+	return false
+
+
+func _grab_nearby_focus(row_index: int) -> void:
+	var rows: Array = rows_box.get_children()
+	if rows.is_empty():
+		_grab_default_focus()
+		return
+	var start_index: int = clampi(row_index, 0, rows.size() - 1)
+	for offset in range(rows.size()):
+		var lower_index: int = start_index - offset
+		if lower_index >= 0 and _grab_focus_in_row(rows[lower_index]):
+			return
+		var upper_index: int = start_index + offset
+		if upper_index != lower_index and upper_index < rows.size() and _grab_focus_in_row(rows[upper_index]):
+			return
+	_grab_default_focus()
+
+
+func _grab_focus_in_row(row: Node) -> bool:
+	for child in row.get_children():
+		var button := child as Button
+		if button != null and not button.disabled:
+			button.grab_focus()
+			return true
+	return false
+
+
+func _tag_focus_target(button: Button, item: int, action: String, row_index: int) -> void:
+	button.set_meta("trade_item", item)
+	button.set_meta("trade_action", action)
+	button.set_meta("trade_row", row_index)
+
+
+func _tab_name(tab: int) -> String:
+	return TAB_SELL if tab == TradeTab.SELL else TAB_BUY
+
+
+func _tab_from_name(tab_name: String) -> int:
+	return TradeTab.SELL if tab_name.to_lower() == TAB_SELL else TradeTab.BUY
 
 
 func _on_close_pressed() -> void:
+	if not root.visible:
+		return
 	root.hide()
 	remove_items()
+	var focus_owner := get_viewport().gui_get_focus_owner()
+	if focus_owner != null:
+		focus_owner.release_focus()
 	closed.emit()
 
 
-# Hide without emitting `closed` (used for defensive external teardown).
-func force_close() -> void:
-	root.hide()
-	remove_items()
-
-
-# =========================================================
-# Helpers
-# =========================================================
-func _make_label(text: String, size: int) -> Label:
+func _make_label(text: String, size: int, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.add_theme_font_override("font", UI_FONT)
 	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", DARK_TEXT)
+	label.add_theme_color_override("font_color", color)
 	return label
+
+
+func _make_action_button(text: String) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.focus_mode = Control.FOCUS_ALL
+	_style_button(button)
+	return button
 
 
 func _style_button(button: Button) -> void:

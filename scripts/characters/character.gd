@@ -16,6 +16,17 @@ var can_interact: bool = false:
 		if not value:
 			$Dialog.hide()
 			dialog_index = 0
+			face_down()
+
+
+# Phase H1: fixed NPCs settle facing Down once the interaction ends.
+func face_down() -> void:
+	if not is_node_ready():
+		return
+	if animated_sprite:
+		animated_sprite.play("idle_down")
+	elif has_node("Sprite2D"):
+		$Sprite2D.frame_coords.y = 0
 	
 		
 
@@ -64,11 +75,6 @@ func interact(player: CharacterBody2D) -> void:
 		else:
 			$Sprite2D.frame_coords.y = direction_map[dir]
 		
-		if (Data.shop_connection[shop_type]["tracker"].size() ==
-			Data.shop_connection[shop_type]["all"].size()) :
-			dialog = ["Sold out"]
-			can_open_shop = false
-		
 		$Dialog.show()
 		if dialog_index < dialog.size():
 			$Dialog.set_text(dialog[dialog_index])
@@ -76,7 +82,6 @@ func interact(player: CharacterBody2D) -> void:
 		else:
 			$Dialog.hide()
 			dialog_index = 0
-			if can_open_shop:
-				open_shop.emit(shop_type)
+			open_shop.emit(shop_type)
 				
 				

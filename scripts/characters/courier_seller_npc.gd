@@ -21,12 +21,13 @@ const DIR_COLUMN_X: Dictionary = {"up": 0, "right": 32, "down": 64, "left": 96}
 const WALK_ROW_Y: Array = [128, 144, 160, 176]
 
 const GREETING_TEXT: String = "我可以收购你的作物和鱼。\nI can buy crops and fish from you."
-const CHOICE_SELL: int = 0
-const CHOICE_LEAVE: int = 1
+const CHOICE_BUY: int = 0
+const CHOICE_SELL: int = 1
+const CHOICE_LEAVE: int = 2
 
 enum Phase {IDLE, DIALOGUE, SELLING}
 
-signal request_open_sell_panel
+signal request_open_sell_panel(initial_tab: String)
 signal request_close_sell_panel
 
 var facing_direction: Vector2 = Vector2.DOWN
@@ -106,22 +107,28 @@ func _on_text_reveal_finished() -> void:
 	if _phase != Phase.DIALOGUE:
 		return
 	if character_dialog.is_dialogue_open() and not character_dialog.has_choices():
-		character_dialog.show_choices(["出售 Sell", "离开 Leave"])
+		character_dialog.show_choices(["Buy", "Sell", "Leave"])
+		return
 
 
 func _on_choice_selected(index: int) -> void:
 	if _phase != Phase.DIALOGUE:
 		return
+	if index == CHOICE_BUY:
+		_open_trade_panel("buy")
+		return
 	if index == CHOICE_SELL:
-		_open_sell_panel()
-	else:
+		_open_trade_panel("sell")
+		return
+	if index == CHOICE_LEAVE:
 		_end_interaction()
+		return
 
 
-func _open_sell_panel() -> void:
+func _open_trade_panel(initial_tab: String) -> void:
 	_phase = Phase.SELLING
 	character_dialog.close_dialogue()  # hide the box; keep the player locked
-	request_open_sell_panel.emit()
+	request_open_sell_panel.emit(initial_tab)
 
 
 # Called by the level when the Sell panel is closed by the player.
@@ -134,7 +141,9 @@ func on_sell_panel_closed() -> void:
 func _end_interaction() -> void:
 	_phase = Phase.IDLE
 	character_dialog.close_dialogue()
-	play_idle(_original_facing)  # restore original facing (avoids the stuck-facing bug)
+	# Phase H1: fixed NPCs always settle facing Down after any interaction ends,
+	# regardless of the player's approach direction.
+	play_idle(Vector2.DOWN)
 	if is_instance_valid(_locked_player) and _locked_player.has_method("end_dialogue_lock"):
 		_locked_player.end_dialogue_lock(self)
 	_locked_player = null

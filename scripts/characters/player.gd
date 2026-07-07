@@ -18,6 +18,7 @@ var seeds_count: int = Enum.Seed.size()
 
 var current_state: Enum.State = Enum.State.DEFAULT
 var fishing_result_resolved: bool = false
+var current_fishing_item: int = Enum.Item.GRAY_CARP
 
 var current_style: Enum.Style = Enum.Style.STRAW
 var style_count: int = Data.unlocked_styles.size()
@@ -28,6 +29,9 @@ var machine_count = Data.unlocked_machines.size()
 var machine_index: int = 0
 signal build(machine: Enum.Machine)
 signal change_machine(machine: Enum.Machine)
+# Phase H1: request the level to open the Machine Build Selector (placement is
+# driven by the level from there on).
+signal open_build_selector
 
 var animation_direction: Vector2 = Vector2(0, 1)
 signal tool_use(tool: Enum.Tool, pos: Vector2, dir: Vector2)
@@ -110,10 +114,10 @@ func _physics_process(_delta: float) -> void:
 			get_fishing_input()
 		
 		Enum.State.BUILDING:
-			get_fishing_input()
-			get_building_input()
-			move()
-			animate()
+			# Phase H1: player is frozen while the Build Selector / placement cursor
+			# is active; the level handles all placement input.
+			set_dialogue_idle()
+			move_and_slide()
 			
 		Enum.State.HOUSE:
 			get_house_input()
@@ -231,11 +235,9 @@ func get_basic_input():
 		update_control_ui.emit(Enum.KEYBOARD.CHANGE_STYLE, current_style)
 		
 	if Input.is_action_just_pressed("build"):
-		current_state = Enum.State.BUILDING
-		change_machine.emit(current_machine)
-		Data.TARGET_HIGHLIGHTER = false
-		update_control_ui.emit(Enum.KEYBOARD.CHANGE_HIGHLIGHT, 0)
-		update_control_ui.emit(Enum.KEYBOARD.CHANGE_MACHINE, current_machine, Enum.State.BUILDING)
+		# Phase H1: opening the Build Selector replaces the old cycle-and-face flow.
+		# The level puts the player into BUILDING and owns the placement input.
+		open_build_selector.emit()
 		
 		
 
@@ -322,23 +324,22 @@ func _on_animation_tree_animation_finished(_anim_name: StringName) -> void:
 # Fishing Part
 func start_fishing():
 	fishing_result_resolved = false
-	$FishingGame.reveal()
+	current_fishing_item = Data.roll_manual_fish_species()
+	$FishingGame.reveal(current_fishing_item)
 	Data.record_manual_fishing_started()
 	$Animation/AnimationTree.set("parameters/FishBlend/blend_amount", 1)
 	current_state = Enum.State.FISHING
 
 
-func _on_fishing_game_fish_game_finish(is_success: bool) -> void:
+func _on_fishing_game_fish_game_finish(is_success: bool, fish_item: int) -> void:
 	if fishing_result_resolved:
 		return
 
 	fishing_result_resolved = true
 	if is_success:
-		# Phase E: manual fishing success no longer grants direct coins. It only
-		# adds the Fish Item (+1). Fish coin value will be handled by the Phase F
-		# seller system. Fishing telemetry (attempts/successes/failures/duration)
-		# is preserved below.
-		Data.ITEMS_AMOUNT[Enum.Item.FISH] += 1
+		var caught_fish: int = fish_item if Data.is_fish_species(fish_item) else current_fishing_item
+		Data.ITEMS_AMOUNT[caught_fish] = int(Data.ITEMS_AMOUNT.get(caught_fish, 0)) + 1
+		Data.record_fish_catch(caught_fish, "manual")
 	Data.record_manual_fishing_finished(is_success)
 	$Animation/AnimationTree.set("parameters/FishBlend/blend_amount", 0)
 	current_state = Enum.State.DEFAULT

@@ -5,9 +5,23 @@ extends Node2D
 @onready var waterGrassLayer := $Layers/WaterGrassLayer
 
 var projectile_scene = preload("res://scenes/machines/projectile.tscn")
-var machine_coord: Vector2 
+var machine_coord: Vector2
 var machine_cells: Array[Vector2i]
 signal delete_machine(coord: Vector2i)
+
+# Phase H1: main-farm slime spawning is disabled (kept for future combat areas).
+const FARM_SLIME_ENABLED: bool = false
+
+# Phase H1: machine build/placement flow (Build Selector -> preview -> confirm/cancel).
+var build_selector: CanvasLayer
+var _placement_active: bool = false
+var _placement_machine: int = Enum.Machine.DELETE
+var _placement_cursor: Vector2i = Vector2i.ZERO
+var _last_mouse_cell: Vector2i = Vector2i(-9999, -9999)
+var _active_trade_merchant_id: String = ""
+var _placement_ignore_confirm_until_mouse_release: bool = false
+const PLACEMENT_VALID_TINT: Color = Color(0.5, 1.0, 0.5, 0.6)
+const PLACEMENT_INVALID_TINT: Color = Color(1.0, 0.4, 0.4, 0.6)
 
 
 # Refer to a tileset
@@ -46,11 +60,18 @@ func _process(_delta):
 	else:
 		$Layers/TargetLayer.clear()
 		
-	$Overlay/PreviewMachineSprite2D.visible = player.current_state == Enum.State.BUILDING
-	if player.animation_direction != Vector2.ZERO:
-		machine_coord = get_target_grid(player.position, player.animation_direction)
-		$Overlay/PreviewMachineSprite2D.position = (Vector2i(machine_coord * Data.TILE_SIZE) +
-					 					Data.MACHINE_PREVIEW_TEXTURES[player.current_machine]["offset"])
+	var preview: Sprite2D = $Overlay/PreviewMachineSprite2D
+	preview.visible = _placement_active
+	if _placement_active:
+		# Mouse drives the cursor when it moves; directional keys nudge it (see input).
+		var mouse_cell: Vector2i = _world_to_grid(get_global_mouse_position())
+		if mouse_cell != _last_mouse_cell:
+			_last_mouse_cell = mouse_cell
+			_placement_cursor = mouse_cell
+		machine_coord = _placement_cursor
+		preview.position = (Vector2i(_placement_cursor * Data.TILE_SIZE) +
+							Data.MACHINE_PREVIEW_TEXTURES[_placement_machine]["offset"])
+		preview.modulate = PLACEMENT_VALID_TINT if _can_place_machine(_placement_machine, _placement_cursor) else PLACEMENT_INVALID_TINT
 
 
 # =========================================================
@@ -214,6 +235,11 @@ func _ready() -> void:
 
 	_connect_courier_seller()
 
+	if not FARM_SLIME_ENABLED:
+		$Timers/BlobTimer.stop()
+
+	_setup_build_selector()
+
 	# Connect to device connection signals
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
 	
@@ -228,40 +254,176 @@ func create_projectile(start_pos: Vector2, dir: Vector2):
 	projectile.setup(start_pos, dir)
 
 
+# Legacy signal handler kept for the scene connection; the Phase H1 flow drives
+# placement through _try_place_machine() instead.
 func _on_player_build(curr_machine: int) -> void:
-	var grid_coord := Vector2i(machine_coord)
-	
-	if curr_machine != Enum.Machine.DELETE:
-		if not _can_place_machine(curr_machine, grid_coord):
+	pass
+
+
+# Atomic placement. Order: valid position -> resources available -> scene instantiates
+# -> register cell -> deduct materials once -> record telemetry. Any failure deducts
+# nothing, occupies no cell, records no telemetry. Returns true only on success.
+func _try_place_machine(curr_machine: int, grid_coord: Vector2i) -> bool:
+	if curr_machine == Enum.Machine.DELETE:
+		return false
+	if not _can_place_machine(curr_machine, grid_coord):
+		return false
+	var cost_plan: Dictionary = Data.build_machine_placement_cost_plan(curr_machine)
+	if not bool(cost_plan.get("success", false)):
+		return false
+
+	var machine = Data.MACHINE_SCENE[curr_machine]["scene"].instantiate()
+	if not machine is Machine:
+		push_warning("Machine scene did not instantiate a Machine for machine id: %s" % curr_machine)
+		_discard_failed_machine_instance(machine)
+		return false
+
+	var setup_succeeded: bool = machine.setup(grid_coord, self, $Objects/Machines)
+	if not setup_succeeded:
+		_discard_failed_machine_instance(machine)
+		return false
+
+	self.connect("delete_machine", machine.delete)
+	machine_cells.append(grid_coord)
+	if not Data.consume_machine_placement_cost_plan(cost_plan):
+		self.disconnect("delete_machine", machine.delete)
+		machine_cells.erase(grid_coord)
+		_discard_failed_machine_instance(machine)
+		return false
+
+	var telemetry_source: String = Data.MACHINE_PLACEMENT_TELEMETRY_SOURCES.get(curr_machine, "")
+	if not telemetry_source.is_empty():
+		Data.record_playtest_machine_placement(
+			telemetry_source,
+			curr_machine,
+			cost_plan["item_costs"],
+			grid_coord,
+			cost_plan["category_costs"],
+			cost_plan["category_consumption"]
+		)
+	return true
+
+
+# =========================================================
+# Phase H1 — Build Selector + Placement Mode
+# =========================================================
+func _setup_build_selector() -> void:
+	var scene: PackedScene = load("res://scenes/ui/machine_build_selector.tscn")
+	build_selector = scene.instantiate()
+	add_child(build_selector)
+	build_selector.machine_selected.connect(_on_build_machine_selected)
+	build_selector.closed.connect(_on_build_selector_closed)
+	if not player.open_build_selector.is_connected(_open_build_selector):
+		player.open_build_selector.connect(_open_build_selector)
+
+
+func _open_build_selector() -> void:
+	# Only from normal play; never on top of another modal / locked state.
+	if player.current_state != Enum.State.DEFAULT:
+		return
+	if _placement_active:
+		return
+	player.current_state = Enum.State.BUILDING
+	Data.TARGET_HIGHLIGHTER = false
+	$Layers/TargetLayer.clear()
+	build_selector.reveal()
+
+
+func _on_build_selector_closed() -> void:
+	# Selector dismissed without choosing a machine -> back to normal play.
+	if _placement_active:
+		return
+	player.current_state = Enum.State.DEFAULT
+
+
+func _on_build_machine_selected(machine_id: int) -> void:
+	_enter_placement(machine_id)
+
+
+func _enter_placement(machine_id: int) -> void:
+	_placement_active = true
+	_placement_machine = machine_id
+	_placement_ignore_confirm_until_mouse_release = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	$Overlay/PreviewMachineSprite2D.texture = Data.MACHINE_PREVIEW_TEXTURES[machine_id]["texture"]
+	_placement_cursor = get_target_grid(player.position, player.animation_direction)
+	_last_mouse_cell = Vector2i(-9999, -9999)
+	build_selector.show_placement_hint()
+
+
+func _confirm_placement() -> void:
+	if not _placement_active:
+		return
+	if _try_place_machine(_placement_machine, _placement_cursor):
+		# Success: exit placement so the player can't accidentally chain-place.
+		_exit_build_mode()
+
+
+func _cancel_placement() -> void:
+	_exit_build_mode()
+
+
+# Fully leaves the build flow: clears preview, selector, and restores control.
+func _exit_build_mode() -> void:
+	_placement_active = false
+	_placement_machine = Enum.Machine.DELETE
+	_placement_ignore_confirm_until_mouse_release = false
+	$Overlay/PreviewMachineSprite2D.visible = false
+	if build_selector != null:
+		build_selector.hide_all()
+	if player.current_state == Enum.State.BUILDING:
+		player.current_state = Enum.State.DEFAULT
+
+
+func _world_to_grid(world_pos: Vector2) -> Vector2i:
+	return Vector2i(floor(world_pos.x / Data.TILE_SIZE), floor(world_pos.y / Data.TILE_SIZE))
+
+
+func _input(event: InputEvent) -> void:
+	if not _placement_active:
+		return
+	if event is InputEventMouseButton:
+		var mouse_event := event as InputEventMouseButton
+		if mouse_event.button_index == MOUSE_BUTTON_LEFT:
+			get_viewport().set_input_as_handled()
+			if not mouse_event.pressed:
+				_placement_ignore_confirm_until_mouse_release = false
+				return
+			if _placement_ignore_confirm_until_mouse_release:
+				return
+			_confirm_placement()
+			return
+		if mouse_event.button_index == MOUSE_BUTTON_RIGHT and mouse_event.pressed:
+			get_viewport().set_input_as_handled()
+			_cancel_placement()
 			return
 
-		var machine = Data.MACHINE_SCENE[curr_machine]["scene"].instantiate()
-		if not machine is Machine:
-			push_warning("Machine scene did not instantiate a Machine for machine id: %s" % curr_machine)
-			_discard_failed_machine_instance(machine)
-			return
 
-		var setup_succeeded: bool = machine.setup(grid_coord, self, $Objects/Machines)
-		if not setup_succeeded:
-			_discard_failed_machine_instance(machine)
-			return
+func _unhandled_input(event: InputEvent) -> void:
+	if not _placement_active:
+		return
+	if event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		_cancel_placement()
+	elif event.is_action_pressed("ui_accept") or event.is_action_pressed("action"):
+		get_viewport().set_input_as_handled()
+		_confirm_placement()
+	elif event.is_action_pressed("ui_left"):
+		get_viewport().set_input_as_handled()
+		_placement_cursor += Vector2i.LEFT
+		_last_mouse_cell = _placement_cursor
+	elif event.is_action_pressed("ui_right"):
+		get_viewport().set_input_as_handled()
+		_placement_cursor += Vector2i.RIGHT
+		_last_mouse_cell = _placement_cursor
+	elif event.is_action_pressed("ui_up"):
+		get_viewport().set_input_as_handled()
+		_placement_cursor += Vector2i.UP
+		_last_mouse_cell = _placement_cursor
+	elif event.is_action_pressed("ui_down"):
+		get_viewport().set_input_as_handled()
+		_placement_cursor += Vector2i.DOWN
+		_last_mouse_cell = _placement_cursor
 
-		_deduct_machine_placement_cost(curr_machine)
-		self.connect("delete_machine", machine.delete)
-		machine_cells.append(grid_coord)
-		var telemetry_source: String = Data.MACHINE_PLACEMENT_TELEMETRY_SOURCES.get(curr_machine, "")
-		if not telemetry_source.is_empty():
-			Data.record_playtest_machine_placement(
-				telemetry_source,
-				curr_machine,
-				Data.MACHINE_PLACEMENT_COSTS[curr_machine],
-				grid_coord
-			)
-	else:
-		if grid_coord in machine_cells:
-			delete_machine.emit(grid_coord)
-			machine_cells.erase(grid_coord)
-	
 
 func _can_place_machine(machine_id: int, grid_coord: Vector2i) -> bool:
 	if machine_id == Enum.Machine.DELETE:
@@ -299,26 +461,12 @@ func _can_place_machine(machine_id: int, grid_coord: Vector2i) -> bool:
 
 
 func _can_afford_machine_placement(machine_id: int) -> bool:
-	var placement_costs: Dictionary = Data.MACHINE_PLACEMENT_COSTS[machine_id]
-	for item in placement_costs:
-		var required_amount: int = int(placement_costs[item])
-		if required_amount <= 0:
-			push_warning("Machine placement material cost must be greater than zero: item=%s, cost=%s" %
-				[item, required_amount])
-			return false
-		var current_amount: int = int(Data.ITEMS_AMOUNT.get(item, 0))
-		if current_amount < required_amount:
-			print("Not enough material to place machine: item=%s, required=%s, current=%s" %
-				[item, required_amount, current_amount])
-			return false
-
-	return true
+	return Data.can_afford_machine_placement_costs(machine_id)
 
 
-func _deduct_machine_placement_cost(machine_id: int) -> void:
-	var placement_costs: Dictionary = Data.MACHINE_PLACEMENT_COSTS[machine_id]
-	for item in placement_costs:
-		Data.ITEMS_AMOUNT[item] -= int(placement_costs[item])
+func _deduct_machine_placement_cost(machine_id: int) -> bool:
+	var cost_plan: Dictionary = Data.build_machine_placement_cost_plan(machine_id)
+	return Data.consume_machine_placement_cost_plan(cost_plan)
 
 
 func _discard_failed_machine_instance(machine: Node) -> void:
@@ -459,6 +607,11 @@ func _on_player_do_action(anim_tree: AnimationTree, property: StringName, tool: 
 
 
 func _on_blob_timer_timeout() -> void:
+	# Phase H1: slimes are temporarily disabled on the main farm (they had no clear
+	# purpose and cluttered the crops). Scene, scripts, assets and combat code are
+	# all preserved for future reuse in a dedicated combat area.
+	if not FARM_SLIME_ENABLED:
+		return
 	var plants = get_tree().get_nodes_in_group("Plants")
 	var spawn_points = $BlobSpawnPositions.get_children()
 	
@@ -470,14 +623,23 @@ func _on_blob_timer_timeout() -> void:
 
 
 func open_shop(shop_type: Enum.Shop):
-	$Overlay/CanvasLayer/ShopUI.reveal(shop_type)
+	var merchant_id: String = "mouse" if shop_type == Enum.Shop.HAT else "cat"
+	_open_trade_panel(merchant_id, "buy")
 	player.current_state = Enum.State.SHOP
 
 
 func _on_player_close_shop() -> void:
+	var trade_ui: Node = get_node_or_null("SellUI")
+	if trade_ui != null and trade_ui.has_method("is_open") and trade_ui.is_open():
+		trade_ui.call("request_close")
+		return
 	$Overlay/CanvasLayer/ShopUI.hide()
 	$Overlay/CanvasLayer/ShopUI.remove_items()
 	player.current_state = Enum.State.DEFAULT
+	# Phase H1: fixed shop NPCs settle facing Down after the shop closes.
+	for character in get_tree().get_nodes_in_group("ShopCharacters"):
+		if character.has_method("face_down"):
+			character.face_down()
 
 
 # =========================================================
@@ -488,26 +650,47 @@ func _connect_courier_seller() -> void:
 	var sell_ui: Node = get_node_or_null("SellUI")
 	if courier == null or sell_ui == null:
 		return
-	if not courier.request_open_sell_panel.is_connected(_open_sell_panel):
-		courier.request_open_sell_panel.connect(_open_sell_panel)
-	if not courier.request_close_sell_panel.is_connected(_force_close_sell_panel):
-		courier.request_close_sell_panel.connect(_force_close_sell_panel)
-	if not sell_ui.closed.is_connected(_on_sell_ui_closed):
-		sell_ui.closed.connect(_on_sell_ui_closed)
+	var open_callable := Callable(self, "_open_sell_panel")
+	if not courier.is_connected("request_open_sell_panel", open_callable):
+		courier.connect("request_open_sell_panel", open_callable)
+	var close_callable := Callable(self, "_force_close_sell_panel")
+	if not courier.is_connected("request_close_sell_panel", close_callable):
+		courier.connect("request_close_sell_panel", close_callable)
+	var ui_closed_callable := Callable(self, "_on_sell_ui_closed")
+	if not sell_ui.is_connected("closed", ui_closed_callable):
+		sell_ui.connect("closed", ui_closed_callable)
 
 
-func _open_sell_panel() -> void:
-	var sell_ui: Node = get_node_or_null("SellUI")
-	if sell_ui != null:
-		sell_ui.reveal()
+func _open_sell_panel(initial_tab: String = "sell") -> void:
+	_open_trade_panel("courier", initial_tab)
+
+
+func _open_trade_panel(merchant_id: String, initial_tab: String = "buy") -> void:
+	var trade_ui: Node = get_node_or_null("SellUI")
+	if trade_ui == null:
+		return
+	_active_trade_merchant_id = merchant_id
+	player.current_state = Enum.State.SHOP
+	if trade_ui.has_method("open_for_merchant"):
+		trade_ui.call("open_for_merchant", merchant_id, initial_tab)
+	else:
+		trade_ui.call("reveal", merchant_id)
 
 
 # Player closed the Sell panel: hand control back to the Courier so it can
 # restore its facing and release the player's dialogue lock.
 func _on_sell_ui_closed() -> void:
-	var courier: Node = get_node_or_null("Objects/CourierSellerNPC")
-	if is_instance_valid(courier):
-		courier.on_sell_panel_closed()
+	if _active_trade_merchant_id == "courier":
+		var courier: Node = get_node_or_null("Objects/CourierSellerNPC")
+		if is_instance_valid(courier):
+			courier.on_sell_panel_closed()
+		player.current_state = Enum.State.DEFAULT
+	else:
+		player.current_state = Enum.State.DEFAULT
+		for character in get_tree().get_nodes_in_group("ShopCharacters"):
+			if character.has_method("face_down"):
+				character.face_down()
+	_active_trade_merchant_id = ""
 
 
 # Defensive teardown (e.g. player somehow left range mid-sale): hide the panel
@@ -515,7 +698,10 @@ func _on_sell_ui_closed() -> void:
 func _force_close_sell_panel() -> void:
 	var sell_ui: Node = get_node_or_null("SellUI")
 	if sell_ui != null and sell_ui.is_open():
-		sell_ui.force_close()
+		sell_ui.call("force_close")
+	if player.current_state == Enum.State.SHOP:
+		player.current_state = Enum.State.DEFAULT
+	_active_trade_merchant_id = ""
 
 
 func _on_joy_connection_changed(device_id: int, connected: bool):

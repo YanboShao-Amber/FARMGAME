@@ -49,7 +49,10 @@ func _process(_delta: float) -> void:
 
 
 func _on_timer_timeout() -> void:
-	Data.ITEMS_AMOUNT[Enum.Item.FISH] += 1
+	var caught_fish: int = Data.roll_automatic_fish_species()
+	Data.ITEMS_AMOUNT[caught_fish] = int(Data.ITEMS_AMOUNT.get(caught_fish, 0)) + 1
+	Data.record_fish_catch(caught_fish, "automatic_fisher")
+	Data.save_playtest_log("automatic_fisher_catch")
 	start_fishing()
 	
 	

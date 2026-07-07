@@ -19,7 +19,10 @@ func hit(tool: Enum.Tool, _attacker_position: Vector2):
 		drop_apple()
 		tree_health -= 1
 		if tree_health == 0:
-			Data.ITEMS_AMOUNT[Enum.Item.WOOD] += 1
+			# Phase G: a fully chopped tree yields exactly 5 Wood, granted once.
+			# The `== 0` check (plus disabling the collision below) guards against
+			# duplicate rewards from extra swings or repeated hit callbacks.
+			Data.ITEMS_AMOUNT[Enum.Item.WOOD] += 5
 			self.flash_sprite_2d.hide()
 			$CollisionShapeTree2D.disabled = true
 			$Stump.show()

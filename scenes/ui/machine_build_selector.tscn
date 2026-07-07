@@ -1,6 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://bdmgvar51tjpl"]
+[gd_scene format=3 uid="uid://c12d3o4a8k12w"]
 
-[ext_resource type="Script" path="res://scripts/ui/sell_ui.gd" id="1_sell_ui"]
+[ext_resource type="Script" path="res://scripts/ui/machine_build_selector.gd" id="1_sel"]
 [ext_resource type="FontFile" uid="uid://pctatblkht3m" path="res://graphics/fonts/HomeVideo-Regular.ttf" id="2_font"]
 [ext_resource type="Texture2D" uid="uid://ddgokbnj7lupg" path="res://graphics/ui/Sprout Lands - UI Pack - Basic pack/Sprite sheets/Sprite sheet for Basic Pack.png" id="3_buttons"]
 
@@ -24,9 +24,9 @@ region = Rect2(837, 5, 20, 21)
 atlas = ExtResource("3_buttons")
 region = Rect2(869, 5, 20, 21)
 
-[node name="SellUI" type="CanvasLayer"]
-layer = 21
-script = ExtResource("1_sell_ui")
+[node name="MachineBuildSelector" type="CanvasLayer"]
+layer = 22
+script = ExtResource("1_sel")
 
 [node name="Root" type="Control" parent="."]
 visible = false
@@ -55,7 +55,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="Panel" parent="Root/Center"]
-custom_minimum_size = Vector2(720, 430)
+custom_minimum_size = Vector2(640, 420)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
@@ -80,26 +80,18 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.23, 0.13, 0.08, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 30
-text = "出售  Sell Items"
+text = "建造  Build"
 
 [node name="Subtitle" type="Label" parent="Root/Center/Panel/ContentMargin/Column"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.21, 0.09, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 20
-text = "邮差 Courier · 出售作物与鱼"
+text = "选择要放置的机器  ·  Select a machine to place"
 
-[node name="RowsScroll" type="ScrollContainer" parent="Root/Center/Panel/ContentMargin/Column"]
+[node name="RowsBox" type="VBoxContainer" parent="Root/Center/Panel/ContentMargin/Column"]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
-follow_focus = true
-horizontal_scroll_mode = 0
-
-[node name="RowsBox" type="VBoxContainer" parent="Root/Center/Panel/ContentMargin/Column/RowsScroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
 theme_override_constants/separation = 8
 
 [node name="CloseButton" type="TextureButton" parent="Root/Center/Panel"]
@@ -118,3 +110,40 @@ texture_pressed = SubResource("AtlasTexture_close_pressed")
 texture_hover = SubResource("AtlasTexture_close_normal")
 ignore_texture_size = true
 stretch_mode = 5
+
+[node name="PlacementHint" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HintPanel" type="PanelContainer" parent="PlacementHint"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -260.0
+offset_top = -56.0
+offset_right = 260.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="HintLabel" type="Label" parent="PlacementHint/HintPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.93, 0.85, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.7)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "左键/A 放置   ·   右键/B 取消   ·   方向键/摇杆 移动"
