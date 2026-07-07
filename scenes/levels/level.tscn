@@ -28,6 +28,8 @@
 [ext_resource type="PackedScene" uid="uid://becgyf3h83b0b" path="res://scenes/ui/coin_display.tscn" id="23_coin_display"]
 [ext_resource type="PackedScene" uid="uid://ds1ub8iocxsjk" path="res://scenes/characters/courier_seller_npc.tscn" id="24_courier"]
 [ext_resource type="PackedScene" uid="uid://bdmgvar51tjpl" path="res://scenes/ui/sell_ui.tscn" id="25_sell_ui"]
+[ext_resource type="PackedScene" uid="uid://c5rlp0hudbtns1" path="res://scenes/ui/hud_side_buttons.tscn" id="26_hud_side_buttons"]
+[ext_resource type="PackedScene" uid="uid://c5rlp0relpanl1" path="res://scenes/ui/relationship_panel.tscn" id="27_relationship_panel"]
 
 [sub_resource type="Gradient" id="Gradient_rmjfq"]
 offsets = PackedFloat32Array(0, 0.21830986, 0.42488262, 1)
@@ -2750,7 +2752,7 @@ offset_top = 312.0
 offset_right = 136.0
 offset_bottom = 352.0
 focus_mode = 0
-text = "Water All"
+text = "全部浇水"
 
 [node name="RainParticles2D" type="GPUParticles2D" parent="Overlay" unique_id=703477973]
 material = SubResource("CanvasItemMaterial_8iyoh")
@@ -2777,6 +2779,10 @@ tracked_quest_id = &"mira_still_sprouts"
 npc_data = ExtResource("21_mira_npc_data")
 
 [node name="SellUI" parent="." unique_id=2141932906 instance=ExtResource("25_sell_ui")]
+
+[node name="HudSideButtons" parent="." instance=ExtResource("26_hud_side_buttons")]
+
+[node name="RelationshipPanel" parent="." instance=ExtResource("27_relationship_panel")]
 
 [node name="Timers" type="Node" parent="." unique_id=1515476947]
 

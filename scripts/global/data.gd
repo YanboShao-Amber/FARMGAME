@@ -15,7 +15,7 @@ const PLANT_DATA = {
 	Enum.Seed.TOMATO: {
 		'texture': "res://graphics/plants/tomato.png",
 		'icon_texture': "res://graphics/icons/tomato.png",
-		'name':'Tomato',
+		'name':'番茄',
 		'h_frames': 3,
 		'grow_speed': 0.75,
 		'death_max': 3,
@@ -23,7 +23,7 @@ const PLANT_DATA = {
 	Enum.Seed.CORN: {
 		'texture': "res://graphics/plants/corn.png",
 		'icon_texture': "res://graphics/icons/corn.png",
-		'name':'Corn',
+		'name':'玉米',
 		'h_frames': 3,
 		'grow_speed': 1.0,
 		'death_max': 2,
@@ -31,7 +31,7 @@ const PLANT_DATA = {
 	Enum.Seed.PUMPKIN: {
 		'texture': "res://graphics/plants/pumpkin.png",
 		'icon_texture': "res://graphics/icons/pumpkin.png",
-		'name':'Pumpkin',
+		'name':'南瓜',
 		'h_frames': 3,
 		'grow_speed': 0.25,
 		'death_max': 3,
@@ -39,7 +39,7 @@ const PLANT_DATA = {
 	Enum.Seed.WHEAT: {
 		'texture': "res://graphics/plants/wheat.png",
 		'icon_texture': "res://graphics/icons/wheat.png",
-		'name':'Wheat',
+		'name':'小麦',
 		'h_frames': 3,
 		'grow_speed': 1.0,
 		'death_max': 3,
@@ -47,17 +47,17 @@ const PLANT_DATA = {
 const MACHINE_UPGRADE_COST = {
 	Enum.Machine.DELETE:{},
 	Enum.Machine.SPRINKLER: {
-		'name': 'Sprinkler',
+		'name': '洒水器',
 		'cost' :{Enum.Item.TOMATO: 30, Enum.Item.WHEAT: 20},
 		'icon': preload("res://graphics/icons/sprinkler.png"),
 		'color': Color.SEA_GREEN},
 	Enum.Machine.FISHER: {
-		'name': 'Fisher',
+		'name': '自动捕鱼器',
 		'cost' :{Enum.Item.WOOD: 25, Enum.Item.FISH: 15},
 		'icon': preload("res://graphics/icons/fisher.png"),
 		'color': Color.SLATE_GRAY},
 	Enum.Machine.SCARECROW: {
-		'name': 'Scarecrow',
+		'name': '稻草人',
 		'cost' : {Enum.Item.PUMPKIN: 15, Enum.Item.CORN: 15},
 		'icon': preload("res://graphics/icons/scarecrow.png"),
 		'color': Color.BURLYWOOD}}
@@ -212,7 +212,7 @@ const ITEM_CATEGORIES: Dictionary = {
 		Enum.Item.RED_SNAPPER]}
 
 const CATEGORY_DISPLAY_NAMES: Dictionary = {
-	&"fish": "Any Fish"}
+	&"fish": "任意鱼类"}
 
 const CATEGORY_ICON_ITEMS: Dictionary = {
 	&"fish": Enum.Item.GRAY_CARP}
@@ -261,18 +261,18 @@ const BUY_TELEMETRY_SOURCES: Dictionary = {
 
 const MERCHANT_CATALOGS: Dictionary = {
 	"courier": {
-		"name": "Courier",
+		"name": "快递员",
 		"items": TRADEABLE_ITEMS,
 		"unlocks": []},
 	"cat": {
-		"name": "Cat",
+		"name": "猫咪",
 		"items": [],
 		"unlocks": [
 			{"type": "machine", "id": Enum.Machine.SPRINKLER},
 			{"type": "machine", "id": Enum.Machine.FISHER},
 			{"type": "machine", "id": Enum.Machine.SCARECROW}]},
 	"mouse": {
-		"name": "Mouse",
+		"name": "小鼠",
 		"items": [],
 		"unlocks": [
 			{"type": "style", "id": Enum.Style.COWBOY},
@@ -362,27 +362,27 @@ const STYLE_UPGRADES = {
 		'icon': null,
 	},
 	Enum.Style.COWBOY: {
-		'name': 'Cowboy',
+		'name': '牛仔帽',
 		'cost':{Enum.Item.WOOD: 8, Enum.Item.CORN: 6},
 		'icon': preload("res://graphics/icons/cowboy.png"),
 		'color': Color.SANDY_BROWN},
 	Enum.Style.ENGLISH: {
-		'name': 'Oldie',
+		'name': '绅士帽',
 		'cost':{Enum.Item.CORN: 8, Enum.Item.WHEAT: 6},
 		'icon': preload("res://graphics/icons/english.png"),
 		'color': Color.LIGHT_GRAY},
 	Enum.Style.BASEBALL: {
-		'name': 'Baseball',
+		'name': '棒球帽',
 		'cost':{Enum.Item.TOMATO: 8, Enum.Item.APPLE: 6},
 		'icon': preload("res://graphics/icons/blue.png"),
 		'color': Color.SKY_BLUE},
 	Enum.Style.BEANIE: {
-		'name': 'Beanie',
+		'name': '针织帽',
 		'cost':{Enum.Item.PUMPKIN: 8, Enum.Item.WHEAT: 6},
 		'icon': preload("res://graphics/icons/beanie.png"),
 		'color': Color.INDIAN_RED},
 	Enum.Style.STRAW: {
-		'name': 'Straw',
+		'name': '草帽',
 		'cost':{Enum.Item.FISH: 8, Enum.Item.WOOD: 6},
 		'icon': preload("res://graphics/icons/straw.png"),
 		'color': Color.BURLYWOOD}}
@@ -397,29 +397,29 @@ const TOOL_STATE_ANIMATIONS = {
 const FISH_DATA = {
 	Enum.Fish.GRAY: {
 		'icon_texture': "res://graphics/icons/grayfish.png",
-		'name': "Gray Fish",
+		'name': "灰鱼",
 		'catch_speed': 20,
 		'lose_speed': 10,
 		'start_progress': 30,
-		'frequency': "Common",
+		'frequency': "普通",
 		'color': Color.PALE_GREEN
 	},
 	Enum.Fish.SILVER: {
 		'icon_texture': "res://graphics/icons/silverfish.png",
-		'name': "Silver Fish",
+		'name': "银鱼",
 		'catch_speed': 15,
 		'lose_speed': 15,
 		'start_progress': 30,
-		'frequency': "Rare",
+		'frequency': "稀有",
 		'color': Color.MEDIUM_PURPLE
 	},
 	Enum.Fish.GOLD: {
 		'icon_texture': "res://graphics/icons/goldfish.png",
-		'name': "Gold Fish",
+		'name': "金鱼",
 		'catch_speed': 10,
 		'lose_speed': 20,
 		'start_progress': 30,
-		'frequency': "Legendary",
+		'frequency': "传说",
 		'color': Color.GOLDENROD
 	}
 	}
@@ -600,23 +600,25 @@ const ITEM_ID_TO_ENUM = {
 	&"PUMPKIN_SEED": Enum.Item.PUMPKIN_SEED,
 	&"WHEAT_SEED": Enum.Item.WHEAT_SEED}
 
+# Player-facing display names are Simplified Chinese. Internal string IDs
+# (WOOD, GRAY_CARP, ...) stay English and must not be renamed.
 const ITEM_DISPLAY_NAMES = {
-	&"WOOD": "Wood",
-	&"APPLE": "Apple",
-	&"TOMATO": "Tomato",
-	&"CORN": "Corn",
-	&"WHEAT": "Wheat",
-	&"PUMPKIN": "Pumpkin",
-	&"FISH": "Fish",
-	&"GRAY_CARP": "Gray Carp",
-	&"SILVER_PERCH": "Silver Perch",
-	&"GOLDEN_KOI": "Golden Koi",
-	&"RED_SNAPPER": "Red Snapper",
-	&"COIN": "Coin",
-	&"TOMATO_SEED": "Tomato Seeds",
-	&"CORN_SEED": "Corn Seeds",
-	&"PUMPKIN_SEED": "Pumpkin Seeds",
-	&"WHEAT_SEED": "Wheat Seeds"}
+	&"WOOD": "木材",
+	&"APPLE": "苹果",
+	&"TOMATO": "番茄",
+	&"CORN": "玉米",
+	&"WHEAT": "小麦",
+	&"PUMPKIN": "南瓜",
+	&"FISH": "鱼",
+	&"GRAY_CARP": "灰鲤鱼",
+	&"SILVER_PERCH": "银鲈鱼",
+	&"GOLDEN_KOI": "金锦鲤",
+	&"RED_SNAPPER": "红鲷鱼",
+	&"COIN": "金币",
+	&"TOMATO_SEED": "番茄种子",
+	&"CORN_SEED": "玉米种子",
+	&"PUMPKIN_SEED": "南瓜种子",
+	&"WHEAT_SEED": "小麦种子"}
 
 
 func _ready() -> void:

@@ -20,7 +20,7 @@ const IDLE_FPS: float = 2.5        # slow breathing cadence (2-4 FPS range)
 const DIR_COLUMN_X: Dictionary = {"up": 0, "right": 32, "down": 64, "left": 96}
 const WALK_ROW_Y: Array = [128, 144, 160, 176]
 
-const GREETING_TEXT: String = "我可以收购你的作物和鱼。\nI can buy crops and fish from you."
+const GREETING_TEXT: String = "我可以收购你的作物和鱼，也能卖东西给你。"
 const CHOICE_BUY: int = 0
 const CHOICE_SELL: int = 1
 const CHOICE_LEAVE: int = 2
@@ -100,14 +100,14 @@ func _begin_interaction(player: Node2D) -> void:
 	play_idle(player.global_position - global_position)
 	if player.has_method("begin_dialogue_lock"):
 		player.begin_dialogue_lock(self)
-	character_dialog.show_line("邮差 Courier", GREETING_TEXT, null)
+	character_dialog.show_line("快递员", GREETING_TEXT, null)
 
 
 func _on_text_reveal_finished() -> void:
 	if _phase != Phase.DIALOGUE:
 		return
 	if character_dialog.is_dialogue_open() and not character_dialog.has_choices():
-		character_dialog.show_choices(["Buy", "Sell", "Leave"])
+		character_dialog.show_choices(["购买", "出售", "离开"])
 		return
 
 

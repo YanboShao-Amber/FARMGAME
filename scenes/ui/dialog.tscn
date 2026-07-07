@@ -37,4 +37,4 @@ theme_override_constants/margin_bottom = 2
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer" unique_id=1218801366]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
-text = "test dialog"
+text = ""

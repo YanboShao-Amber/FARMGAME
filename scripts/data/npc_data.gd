@@ -36,13 +36,12 @@ class_name NPCData
 
 
 func get_display_name() -> String:
+	# Player-facing name is Simplified Chinese only (no mixed CN/EN).
+	# display_name_en is kept as internal metadata but never shown in-game.
 	var cn_name: String = display_name_cn.strip_edges()
-	var en_name: String = display_name_en.strip_edges()
-
-	if not cn_name.is_empty() and not en_name.is_empty():
-		return "%s %s" % [cn_name, en_name]
 	if not cn_name.is_empty():
 		return cn_name
+	var en_name: String = display_name_en.strip_edges()
 	if not en_name.is_empty():
 		return en_name
 	return String(npc_id)

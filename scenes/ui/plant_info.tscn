@@ -28,7 +28,7 @@ size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=1836492476]
 layout_mode = 2
-text = "Corn"
+text = "玉米"
 
 [node name="GrowthBar" type="TextureProgressBar" parent="HBoxContainer/VBoxContainer" unique_id=1299207178]
 custom_minimum_size = Vector2(0, 6)

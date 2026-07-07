@@ -122,7 +122,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="TrackerPanel" type="Panel" parent="Root/PanelCenter" unique_id=136890479]
-custom_minimum_size = Vector2(750, 375)
+custom_minimum_size = Vector2(750, 450)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 

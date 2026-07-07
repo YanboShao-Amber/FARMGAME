@@ -80,14 +80,14 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.23, 0.13, 0.08, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 30
-text = "出售  Sell Items"
+text = "商店"
 
 [node name="Subtitle" type="Label" parent="Root/Center/Panel/ContentMargin/Column"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.21, 0.09, 1)
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 20
-text = "邮差 Courier · 出售作物与鱼"
+text = "买卖各种物资"
 
 [node name="RowsScroll" type="ScrollContainer" parent="Root/Center/Panel/ContentMargin/Column"]
 layout_mode = 2

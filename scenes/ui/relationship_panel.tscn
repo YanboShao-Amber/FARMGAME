@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5rlp0relpanl1"]
+
+[ext_resource type="Script" path="res://scripts/ui/relationship_panel.gd" id="1_relationship_panel"]
+
+[node name="RelationshipPanel" type="CanvasLayer"]
+script = ExtResource("1_relationship_panel")

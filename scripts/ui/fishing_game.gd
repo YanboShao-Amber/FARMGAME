@@ -127,7 +127,7 @@ func _configure_progress_bar() -> void:
 
 func _create_hint_label() -> void:
 	_hint_label = Label.new()
-	_hint_label.text = "Hold: Mouse / Space / A"
+	_hint_label.text = "按住上升 · 松开下落"
 	_hint_label.add_theme_font_override("font", UI_FONT)
 	_hint_label.add_theme_font_size_override("font_size", 14)
 	_hint_label.add_theme_color_override("font_color", Color(0.96, 0.93, 0.85, 1))

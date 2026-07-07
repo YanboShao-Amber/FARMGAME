@@ -24,7 +24,7 @@ text = "这些幼苗刚移栽不久，根系还没有站稳。"
 
 [sub_resource type="Resource" id="DialogueLineData_first_3"]
 script = ExtResource("2_dialogue_line")
-text = "我叫米萝，是这里的植物研究员……至少，以前是。"
+text = "我叫米拉，是这里的植物研究员……至少，以前是。"
 expression_id = &"worried"
 
 [sub_resource type="Resource" id="DialogueLineData_first_4"]
@@ -139,7 +139,7 @@ lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_rep
 
 [sub_resource type="Resource" id="DialogueLineData_gift_loved_1"]
 script = ExtResource("2_dialogue_line")
-text = "Is this for me? Thank you. I would like to record its condition carefully."
+text = "太好了，你居然记得我喜欢什么。"
 expression_id = &"happy"
 
 [sub_resource type="Resource" id="DialogueSequenceData_gift_loved"]
@@ -149,7 +149,7 @@ lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_gif
 
 [sub_resource type="Resource" id="DialogueLineData_gift_liked_1"]
 script = ExtResource("2_dialogue_line")
-text = "Thank you. It looks well kept. I will take good care of it."
+text = "谢谢你，这个对我很有用。"
 expression_id = &"happy"
 
 [sub_resource type="Resource" id="DialogueSequenceData_gift_liked"]
@@ -159,7 +159,7 @@ lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_gif
 
 [sub_resource type="Resource" id="DialogueLineData_gift_neutral_1"]
 script = ExtResource("2_dialogue_line")
-text = "Thank you. I will put it somewhere suitable."
+text = "谢谢你想着我。"
 
 [sub_resource type="Resource" id="DialogueSequenceData_gift_neutral"]
 script = ExtResource("3_dialogue_sequence")
@@ -168,7 +168,7 @@ lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_gif
 
 [sub_resource type="Resource" id="DialogueLineData_gift_disliked_1"]
 script = ExtResource("2_dialogue_line")
-text = "This... I am not very good at handling it. Still, thank you."
+text = "这个……我可能不太用得上。不过还是谢谢你。"
 expression_id = &"worried"
 
 [sub_resource type="Resource" id="DialogueSequenceData_gift_disliked"]
@@ -178,7 +178,7 @@ lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_gif
 
 [sub_resource type="Resource" id="DialogueLineData_gift_already_today_1"]
 script = ExtResource("2_dialogue_line")
-text = "I already received a gift from you today. Please keep some for yourself."
+text = "今天你已经送过我礼物了，也给自己留一些吧。"
 
 [sub_resource type="Resource" id="DialogueSequenceData_gift_already_today"]
 script = ExtResource("3_dialogue_sequence")
@@ -187,11 +187,11 @@ lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_gif
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_1_1"]
 script = ExtResource("2_dialogue_line")
-text = "浣犱粖澶╄蛋杩囨潵鐨勬椂鍊欙紝鎴戝惉瑙佸湡灞備笅闈㈡湁寰堣交鐨勬按澹般€?"
+text = "你走过来的时候，我又听见土层下面很轻的水声了。"
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_1_2"]
 script = ExtResource("2_dialogue_line")
-text = "鍏斿瓙鐨勮€虫湹瀵硅繖浜涢渿鍔ㄥ緢鏁忔劅鈥︹€︿笉杩囦互鍓嶏紝鎴戞€昏寰楄嚜宸卞彲鑳藉惉閿欎簡銆?"
+text = "这些声音很细微……以前，我大概会以为是自己听错了。"
 expression_id = &"worried"
 
 [sub_resource type="Resource" id="DialogueSequenceData_relationship_daily_1"]
@@ -201,12 +201,12 @@ lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_rel
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_2_1"]
 script = ExtResource("2_dialogue_line")
-text = "娓╁鍏抽棴鍓嶏紝鏃ф帓姘寸涔熷彂鍑鸿繃鐩镐技鐨勫０闊炽€?"
+text = "温室关闭之前，旧的排水管也发出过类似的声音。"
 expression_id = &"worried"
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_2_2"]
 script = ExtResource("2_dialogue_line")
-text = "鎴戞敞鎰忓埌浜嗭紝鍗存病鏈夌珛鍒诲仠涓嬪疄楠屻€傜瓑鎴戠‘璁ょ殑鏃跺€欙紝鑲茶嫍搴婂凡缁忚繘姘翠簡銆?"
+text = "我当时注意到了，却没有停下来仔细确认。现在想想有些可惜。"
 expression_id = &"worried"
 
 [sub_resource type="Resource" id="DialogueSequenceData_relationship_daily_2"]
@@ -216,16 +216,16 @@ lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_rel
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_3_1"]
 script = ExtResource("2_dialogue_line")
-text = "閭ｆ浜嬫晠娌℃湁浼ゅ埌浠讳綍浜猴紝浣嗘垜鐓ч【浜嗗嚑涓湀鐨勫辜鑻楀叏閮芥病鑳界暀涓嬨€?"
+text = "那次事故没有伤到人，可我照料了几个月的幼苗全都没能留下。"
 expression_id = &"worried"
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_3_2"]
 script = ExtResource("2_dialogue_line")
-text = "澶у閮借鑰佹棫鐨勭閬撴墠鏄富瑕佸師鍥犮€?"
+text = "大家都说，是旧管道老化才是主要原因。"
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_3_3"]
 script = ExtResource("2_dialogue_line")
-text = "鍙垜涓€鐩磋寰楋紝鑷繁鍚寮傚父涔嬪悗锛岃繕鏄姽璞簡寰堜箙銆?"
+text = "可我一直觉得，是不是自己哪里判断错了，为此犹豫了很久。"
 expression_id = &"worried"
 
 [sub_resource type="Resource" id="DialogueSequenceData_relationship_daily_3"]
@@ -235,16 +235,16 @@ lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_rel
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_4_1"]
 script = ExtResource("2_dialogue_line")
-text = "鍚庢潵鎴戝父甯告兂锛屽鏋滃綋鏃舵洿鐩镐俊鑷繁鐨勫垽鏂紝缁撴灉浼氫笉浼氫笉鍚屻€?"
+text = "后来我常想，如果当时更相信自己的判断，结果会不会不一样。"
 expression_id = &"worried"
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_4_2"]
 script = ExtResource("2_dialogue_line")
-text = "浣嗕綘璁╂垜鏄庣櫧锛岀収椤炬鐗╁苟涓嶆槸姘歌繙涓嶈兘鐘敊銆?"
+text = "但你让我明白，照料植物这件事，并不是一次失误就永远做不好。"
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_4_3"]
 script = ExtResource("2_dialogue_line")
-text = "鐪熸閲嶈鐨勶紝涔熻鏄湪鍙樺寲鍙戠敓涔嬪悗锛屼粛鐒舵効鎰忕户缁洖搴斿畠浠€?"
+text = "真正重要的，是在变化发生之后，仍然愿意继续回应它们。"
 expression_id = &"happy"
 
 [sub_resource type="Resource" id="DialogueSequenceData_relationship_daily_4"]
@@ -254,16 +254,16 @@ lines = Array[ExtResource("2_dialogue_line")]([SubResource("DialogueLineData_rel
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_5_1"]
 script = ExtResource("2_dialogue_line")
-text = "鏈€杩戯紝鎴戝張鑳藉惉瑙佹俯瀹や笅闈㈢殑姘存祦浜嗐€?"
+text = "最近，我又能安心听着温室下面的水流声了。"
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_5_2"]
 script = ExtResource("2_dialogue_line")
-text = "杩欎竴娆★紝瀹冨惉璧锋潵涓嶅儚璀﹀憡锛屾洿鍍忔槸鏈変粈涔堟鍦ㄦ參鎱㈤啋鏉ャ€?"
+text = "这一次它听起来不像警报，更像有什么正在慢慢苏醒。"
 expression_id = &"happy"
 
 [sub_resource type="Resource" id="DialogueLineData_relationship_daily_5_3"]
 script = ExtResource("2_dialogue_line")
-text = "绛夋垜浠妸閭ｉ噷閲嶆柊鏁寸悊濂斤紝鎴戞兂璇蜂綘涓€璧风湅绗竴鏍噸鏂板紑鑺辩殑妞嶇墿銆?"
+text = "等我们把那里重新整理好，我想请你一起看第一株重新开花的植物。"
 expression_id = &"happy"
 
 [sub_resource type="Resource" id="DialogueSequenceData_relationship_daily_5"]
@@ -303,7 +303,7 @@ sequence_id = &"relationship_daily_5"
 [resource]
 script = ExtResource("1_npc_data")
 npc_id = &"mira"
-display_name_cn = "米萝"
+display_name_cn = "米拉"
 display_name_en = "Mira"
 occupation_cn = "植物研究员"
 occupation_en = "Plant Researcher"

@@ -239,6 +239,7 @@ func _ready() -> void:
 		$Timers/BlobTimer.stop()
 
 	_setup_build_selector()
+	_setup_hud_panels()
 
 	# Connect to device connection signals
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
@@ -702,6 +703,64 @@ func _force_close_sell_panel() -> void:
 	if player.current_state == Enum.State.SHOP:
 		player.current_state = Enum.State.DEFAULT
 	_active_trade_merchant_id = ""
+
+
+# =========================================================
+# Phase H5.1 — HUD side buttons + independent Relationship / Character panels
+# =========================================================
+func _setup_hud_panels() -> void:
+	# The Character panel looks up the player via the "Player" group.
+	if not player.is_in_group("Player"):
+		player.add_to_group("Player")
+
+	var buttons: Node = get_node_or_null("HudSideButtons")
+	if buttons != null:
+		if buttons.has_signal("relationship_pressed") and not buttons.relationship_pressed.is_connected(_on_relationship_button_pressed):
+			buttons.relationship_pressed.connect(_on_relationship_button_pressed)
+
+	var relationship_panel: Node = get_node_or_null("RelationshipPanel")
+	if relationship_panel != null and relationship_panel.has_signal("closed"):
+		if not relationship_panel.closed.is_connected(_on_hud_panel_closed):
+			relationship_panel.closed.connect(_on_hud_panel_closed.bind(relationship_panel))
+
+
+# A HUD panel may open only from calm, normal play: not while building, fishing,
+# shopping, talking to an NPC, or with another modal already up.
+func _can_open_hud_panel() -> bool:
+	if player.current_state != Enum.State.DEFAULT:
+		return false
+	if _placement_active:
+		return false
+	if player.is_dialogue_locked():
+		return false
+	if _is_hud_panel_open("RelationshipPanel"):
+		return false
+	var sell_ui: Node = get_node_or_null("SellUI")
+	if sell_ui != null and sell_ui.has_method("is_open") and sell_ui.is_open():
+		return false
+	return true
+
+
+func _is_hud_panel_open(node_name: String) -> bool:
+	var panel: Node = get_node_or_null(node_name)
+	return panel != null and panel.has_method("is_open") and panel.is_open()
+
+
+func _on_relationship_button_pressed() -> void:
+	if not _can_open_hud_panel():
+		return
+	var relationship_panel: Node = get_node_or_null("RelationshipPanel")
+	if relationship_panel == null:
+		return
+	# Freeze the player like an NPC conversation: no movement, tools, build, or
+	# re-interaction while the panel owns the screen.
+	player.begin_dialogue_lock(relationship_panel)
+	relationship_panel.open()
+
+
+func _on_hud_panel_closed(panel: Node) -> void:
+	if is_instance_valid(panel):
+		player.end_dialogue_lock(panel)
 
 
 func _on_joy_connection_changed(device_id: int, connected: bool):

@@ -99,11 +99,11 @@ func _ensure_runtime_controls() -> void:
 	column.add_child(_tab_bar)
 	column.move_child(_tab_bar, 2)
 
-	_buy_tab_button = _make_action_button("Buy")
+	_buy_tab_button = _make_action_button("购买")
 	_buy_tab_button.pressed.connect(func() -> void: _switch_tab(TradeTab.BUY))
 	_tab_bar.add_child(_buy_tab_button)
 
-	_sell_tab_button = _make_action_button("Sell")
+	_sell_tab_button = _make_action_button("出售")
 	_sell_tab_button.pressed.connect(func() -> void: _switch_tab(TradeTab.SELL))
 	_tab_bar.add_child(_sell_tab_button)
 
@@ -144,9 +144,9 @@ func _rebuild(preserve_state: bool = true) -> void:
 	remove_items()
 	var catalog: Dictionary = Data.MERCHANT_CATALOGS[_merchant_id]
 	var merchant_name: String = catalog.get("name", _merchant_id)
-	title_label.text = "%s Trade" % merchant_name
-	subtitle_label.text = "Buy and sell goods"
-	_coin_label.text = "Coins: %d" % Data.get_coins()
+	title_label.text = "%s的小店" % merchant_name
+	subtitle_label.text = "买卖各种物资"
+	_coin_label.text = "金币：%d" % Data.get_coins()
 	_buy_tab_button.disabled = _current_tab == TradeTab.BUY
 	_sell_tab_button.disabled = _current_tab == TradeTab.SELL
 
@@ -164,7 +164,7 @@ func _rebuild(preserve_state: bool = true) -> void:
 			row_count += 1
 
 	if row_count == 0:
-		rows_box.add_child(_make_label("No goods available.", 22, DARK_TEXT))
+		rows_box.add_child(_make_label("暂无可交易的物品。", 22, DARK_TEXT))
 	_restore_view_state(view_state)
 
 
@@ -212,11 +212,11 @@ func _make_item_row(item: int, is_buy: bool) -> void:
 	name_label.custom_minimum_size = Vector2(190, 0)
 	content.add_child(name_label)
 
-	var owned_label := _make_label("Owned: %d" % owned, 20, DARK_TEXT)
+	var owned_label := _make_label("持有：%d" % owned, 20, DARK_TEXT)
 	owned_label.custom_minimum_size = Vector2(125, 0)
 	content.add_child(owned_label)
 
-	var price_label := _make_label(("%s: %d" % ["Buy" if is_buy else "Sell", unit_price]), 20, DARK_TEXT)
+	var price_label := _make_label(("%s：%d" % ["买价" if is_buy else "卖价", unit_price]), 20, DARK_TEXT)
 	price_label.custom_minimum_size = Vector2(105, 0)
 	content.add_child(price_label)
 
@@ -229,7 +229,7 @@ func _make_item_row(item: int, is_buy: bool) -> void:
 	coin_icon.texture = Data.get_item_texture(Enum.Item.COIN)
 	content.add_child(coin_icon)
 
-	var secondary := _make_action_button("Max" if is_buy else "All")
+	var secondary := _make_action_button("买最多" if is_buy else "全部卖出")
 	_tag_focus_target(secondary, item, "secondary", rows_box.get_child_count() - 1)
 	secondary.custom_minimum_size = Vector2(96, 0)
 	if is_buy:
@@ -292,21 +292,21 @@ func _trade_item(item: int, quantity: int, is_buy: bool) -> void:
 	if is_buy:
 		var bought: int = Data.try_buy_item(item, quantity, _merchant_id)
 		if bought > 0:
-			_status_label.text = "Bought %d %s." % [bought, Data.get_item_display_name(Data.get_item_id(item))]
+			_status_label.text = "购买了 %d 个%s。" % [bought, Data.get_item_display_name(Data.get_item_id(item))]
 		else:
-			_status_label.text = "Cannot buy."
+			_status_label.text = "金币不足。"
 	else:
 		var earned: int = Data.try_sell_item(item, quantity, _merchant_id)
 		if earned > 0:
-			_status_label.text = "Sold for %d coins." % earned
+			_status_label.text = "出售获得 %d 金币。" % earned
 		else:
-			_status_label.text = "Cannot sell."
+			_status_label.text = "数量不足。"
 	_rebuild()
 
 
 func _buy_unlock(unlock_type: String, product_id: int) -> void:
 	var bought: bool = Data.try_buy_unlock(_merchant_id, unlock_type, product_id)
-	_status_label.text = "Purchased." if bought else "Cannot purchase."
+	_status_label.text = "购买成功。" if bought else "金币或材料不足。"
 	_rebuild()
 
 
@@ -329,7 +329,7 @@ func _can_afford_unlock(unlock_type: String, product_id: int) -> bool:
 
 
 func _format_unlock_cost(unlock_type: String, product_id: int) -> String:
-	var parts: Array[String] = ["%d Coin" % Data.get_unlock_coin_cost(unlock_type, product_id)]
+	var parts: Array[String] = ["%d 金币" % Data.get_unlock_coin_cost(unlock_type, product_id)]
 	var resources: Dictionary = Data.get_unlock_resource_costs(unlock_type, product_id)
 	for item in resources:
 		parts.append("%d %s" % [int(resources[item]), Data.get_item_display_name(Data.get_item_id(item))])

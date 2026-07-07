@@ -92,7 +92,7 @@ y_sort_enabled = true
 collision_layer = 44
 collision_mask = 0
 script = ExtResource("1_e22cc")
-dialog = Array[String](["Meow!"])
+dialog = Array[String](["喵～欢迎光临。"])
 texture = ExtResource("5_yscb1")
 animated_sprite = NodePath("AnimatedSprite2D")
 

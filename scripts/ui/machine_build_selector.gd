@@ -134,7 +134,7 @@ func _make_row(machine: int) -> void:
 	status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	if not unlocked:
-		status.text = "未解锁 Locked"
+		status.text = "未解锁"
 	elif not affordable:
 		status.text = "材料不足"
 	content.add_child(status)

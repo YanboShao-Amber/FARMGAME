@@ -304,6 +304,12 @@ func _clear_objective_rows() -> void:
 func _get_npc_display_name(npc_id: StringName) -> String:
 	match npc_id:
 		&"mira":
-			return "米萝 Mira"
+			return "米拉"
+		&"cat":
+			return "猫咪"
+		&"mouse":
+			return "小鼠"
+		&"courier":
+			return "快递员"
 		_:
 			return String(npc_id)
